@@ -119,7 +119,7 @@ seminar-team01/
 | 구분 | 주소 |
 |---|---|
 | 팀 저장소 | https://suyoungi.github.io/seminar-team01/ |
-| suyoungi | (fork 후 Pages를 켜면 https://suyoungi.github.io/seminar-team01/) |
+| suyoungi | 팀 저장소와 같음 (저장소 주인이라 fork하지 않음) |
 | minkwanchoi | (fork 후 Pages를 켜면 https://minkwanchoi.github.io/seminar-team01/) |
 
 ### 설명영상
