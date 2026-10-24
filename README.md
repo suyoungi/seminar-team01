@@ -177,7 +177,7 @@ seminar-team01/
 
 ### 설명영상
 
-- 영상 링크: (녹화 뒤 추가) — 대시보드 설명 5분. 어떤 연구를 어떻게 했고 무엇이 나왔는지와 화면 사용법
+- 영상 링크: https://drive.google.com/file/d/17CzUQL5J1jQz-M4hDWwEQdSPBJOi5R3j/view?usp=sharing (5분 25초, 팀원 A 녹화) — 대시보드로 어떤 연구를 어떻게 했고 무엇이 나왔는지 설명. 화면 녹화·음성·자막은 docs의 대본으로 자동 제작
 - 대본과 촬영 순서: [docs/설명영상_대본_대시보드.md](docs/설명영상_대본_대시보드.md)
 
 ### 역할 분담
