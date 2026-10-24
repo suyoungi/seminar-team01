@@ -1,0 +1,3 @@
+name,owner,role,plain,standard_family,standard_detail,form,confidence,domestic_addition,basis
+(예시) 자동차 SW 기능안전 평가,국토교통부,제도 소개,자동차 전자제어 SW가 기능안전 국제표준을 따르는지 보는 가상의 예시 제도,(참조 표준 없음),ISO 26262(예시),수정 채택,추정,국내 세부 시험 절차(예시),예시 입력입니다. 실제 제도가 아닙니다
+(예시) 의료기기 SW 밸리데이션,식품의약품안전처,제도 소개,의료기기 SW의 개발 과정을 검증하는 가상의 예시 제도,ISO/IEC 12207,IEC 62304(예시),참조,기획안,,예시 입력입니다. 실제 제도가 아닙니다

@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "title": "이해관계자 10곳",
+    "source": "briefing.html 6장 표와 그림 2를 그대로 옮김. '역할'은 제도 조문·문서로 확인한 것, '관심'과 지도 위 위치(영향·권한)는 원문이 '추정'으로 표시한 것",
+    "updated": "2026-10-24",
+    "axes": {
+      "impact": "제도 변경으로 받는 영향 (1 작음 ~ 5 큼) — 추정",
+      "power": "제도를 바꿀 결정 권한 (1 작음 ~ 5 큼) — 추정"
+    },
+    "position_status": "추정",
+    "groups": {
+      "결정 기관": "제도의 규정을 만들고 고치는 곳",
+      "시험·인증 기관": "시험하고 인증서를 내는 곳",
+      "수요자": "시험을 받고 결과를 제출하는 쪽"
+    }
+  },
+  "stakeholders": [
+    {"id": "mnd", "name": "국방부", "group": "결정 기관", "role": "K-RMF 지시 제정·운영(지능정보화정책관), 국방 사이버보안 총괄", "role_status": "확인", "interest": "보안 수준 유지가 우선. 절차 간소화에는 조건부 찬성", "impact": 2, "power": 5, "institutions": ["krmf"]},
+    {"id": "dapa", "name": "방위사업청", "group": "결정 기관", "role": "매뉴얼 제·개정, 무기체계 획득 관리", "role_status": "확인", "interest": "개발 일정·비용 절감에 관심. 매뉴얼 개정 권한 보유", "impact": 3, "power": 5, "institutions": ["dapa", "dq", "do178"]},
+    {"id": "nis", "name": "국가정보원", "group": "결정 기관", "role": "KCMVP 검증, 보안기능확인서 시험기관 지정, 「국가 사이버보안 기본지침」 제정(CC 고시는 과기정통부 소관)", "role_status": "확인", "interest": "국가 보안 기준의 일관성. 타 제도 결과 인정에는 신중", "impact": 2, "power": 4, "institutions": ["kcmvp", "sfc"]},
+    {"id": "mois", "name": "행정안전부", "group": "결정 기관", "role": "SW 개발보안 가이드, 공공 정보시스템", "role_status": "확인", "interest": "국방과 별도 체계. 공통 목록 도입 시 가이드 개정 필요", "impact": 3, "power": 4, "institutions": ["mois"]},
+    {"id": "dtaq", "name": "국방기술품질원", "group": "시험·인증 기관", "role": "품질보증, DQ마크 인증기관, 신뢰성시험 기술지원기관, K-RMF 업체주관 사업 구현 점검 지원", "role_status": "확인", "interest": "시험 기준 통일 시 업무 효율. 시험기관 역할 유지에 관심", "impact": 4, "power": 3, "institutions": ["dapa", "dq", "krmf"]},
+    {"id": "dcc", "name": "국군방첩사령부", "group": "시험·인증 기관", "role": "K-RMF 보안평가 총괄·수행, 운영시스템 구축(지시 제8·17조)", "role_status": "확인", "interest": "보안평가 결과의 권위 유지. 선행 평가결과 활용 규정(제30조⑧)의 운용 주체", "impact": 3, "power": 3, "institutions": ["krmf"]},
+    {"id": "nsr", "name": "국가보안기술연구소", "group": "시험·인증 기관", "role": "CC 인증기관(IT보안인증사무국), 보안약점 진단도구 인증, 행안부 진단 업무 위탁 대상(지침 제50조의2)", "role_status": "확인", "interest": "CC 인증 도구 요건이 여러 제도에 걸쳐 있어 도구 인정 통합의 열쇠", "impact": 3, "power": 3, "institutions": ["cc", "mois"]},
+    {"id": "add", "name": "국방과학연구소", "group": "시험·인증 기관", "role": "연구개발 주관, 자체 SW 시험", "role_status": "확인", "interest": "연구개발 단계 시험 부담 경감", "impact": 4, "power": 2, "institutions": ["dapa", "krmf"]},
+    {"id": "sys", "name": "체계업체", "group": "수요자", "role": "무기체계 개발·납품, 시험 결과 제출", "role_status": "확인", "interest": "중복 시험·소명 부담이 가장 큼. 상호인정 수요자", "impact": 5, "power": 2, "institutions": ["dapa", "krmf", "mois"]},
+    {"id": "vendor", "name": "SW 업체·시험도구사", "group": "수요자", "role": "SW 개발, 정적분석 도구 공급", "role_status": "확인", "interest": "도구 검증 제도가 생기면 진입장벽이자 기회", "impact": 5, "power": 1, "institutions": ["dapa", "mois"]}
+  ]
+}

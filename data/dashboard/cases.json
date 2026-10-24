@@ -1,0 +1,95 @@
+{
+  "_meta": {
+    "title": "해외 상호인정 사례 3개",
+    "source": "docs/A4_해외상호인정사례.md 1·2·3장과 4장 종합표, briefing.html 5장을 그대로 옮김",
+    "updated": "2026-10-24",
+    "axes": {
+      "criteria": "기준(목록)을 통일했나",
+      "method": "방법(절차)을 통일했나",
+      "tool": "도구를 통일했나",
+      "rule": "결과를 인정한다고 적은 별도 규정이 있나"
+    }
+  },
+  "common": {
+    "text": "세 사례 모두 결과를 인정하기 전에 기준(목록), 방법(절차), 도구 가운데 적어도 하나를 먼저 통일했고, 그 위에 \"무엇을 어디까지 인정하고 거부하려면 어떻게 하는가\"를 적은 인정 규정을 따로 두었다. 세 규정 모두 예외 조항을 함께 둔다.",
+    "status": "확인",
+    "three_elements": ["인정 범위", "예외 승인 절차", "분쟁 조정 주체"],
+    "domestic_gap": "국내 선례(docs/A3)에는 인정 범위만 있고 예외 승인 절차와 분쟁 조정 주체는 없다.",
+    "source": "docs/A4 4.2절, docs/A3 2절"
+  },
+  "cases": [
+    {
+      "id": "ccra",
+      "name": "CCRA",
+      "full": "CC 국제상호인정협정 (Common Criteria Recognition Arrangement)",
+      "plain": "여러 나라가 '네 나라에서 받은 정보보호제품 인증서를 우리 나라에서도 인정하겠다'고 맺은 정부 간 약속",
+      "recognizes": "가입국 인증기관이 발급한 CC 인증서 가운데 ① 협력 보호프로파일(cPP) 기반 인증서 ② EAL1~2(+ALC_FLR) 인증서만. EAL3 이상은 인증서에 \"CCRA recognition for components up to EAL 2 and ALC_FLR only\"를 적음",
+      "how": "공통 평가기준(ISO/IEC 15408)과 평가방법(CEM)을 쓰고, 2014년 약정이 인정 범위를 cPP 수준으로 좁힘(2000년 약정은 EAL4까지). 분류정보를 다루는 용도에는 인정을 거부할 수 있음(Article 3). 한국은 2006년 인증서 발행국으로 가입(2차 자료)",
+      "lesson": "기준과 방법을 통일한 뒤에도 \"어떤 인증서를 어디까지 인정하는가\"를 적은 별도 약정이 있어야 결과가 인정됨. 같은 기준으로 평가한 국내용 CC 인증은 약정 범위 밖이라 해외에서 인정되지 않음",
+      "unified": {"criteria": true, "method": true, "tool": false},
+      "unified_detail": {
+        "criteria": "ISO/IEC 15408(CC) 보증요소 목록을 공통으로 쓰고, cPP로 제품군별 요구사항을 다시 통일",
+        "method": "CEM(평가방법론)과 cPP 보조문서로 평가 활동을 통일",
+        "tool": "통일 대상 아님"
+      },
+      "rule": "CCRA 약정 Article 2(범위), Annex K(cPP), Article 3(예외). 범위 밖(EAL3+, 국내용)은 같은 기준이어도 인정 안 됨",
+      "exception": "분류정보 용도에는 인정 거부 가능(Article 3)",
+      "without_rule": "CC로 EAL4 평가를 해도 2017.9.8 이후 EAL3·4 인증서는 다른 나라가 인정하지 않음. 국내용 CC 인증은 CC 기준서를 써도 해외 인정 없음",
+      "with_rule": "Article 2 범위 안(cPP, EAL1~2)은 \"without the need for further evaluation\"",
+      "status": "확인",
+      "sources": "CCRA 2014 Article 2·3·17, Annex K, Vision Statement 2012 [확인 원문] · 한국 가입 시점, ITSCC FAQ는 [2차]",
+      "proposal_link": "①"
+    },
+    {
+      "id": "rmf",
+      "name": "미국 RMF 상호인정",
+      "full": "미국 국방부 위험관리 프레임워크의 상호인정 (RMF reciprocity)",
+      "plain": "미국 국방부 안에서 한 부대가 끝낸 보안 평가를 다른 부대가 다시 하지 않고 받아들이게 한 규정",
+      "recognizes": "다른 국방부 구성군·연방기관이 수행한 보안통제 평가·시험 결과와 인가 문서",
+      "how": "통제 목록은 NIST SP 800-53 하나를 연방 민간·국방·국가안보체계가 함께 쓰고(CNSSI 1253은 기준선만 정함), 절차는 SP 800-37 RMF. 그 위에 DoDI 8510.01이 \"중복 시험·평가를 줄이기 위해 상호인정을 쓴다\"(2022판 1.2.f)고 정하고, 2014판은 \"기존 시험·평가 결과의 수용을 전제로 한다\", 2016년 DoD CIO 메모는 \"다른 구성군이 이미 시험한 것을 다시 시험할 권한이 없다\"고 명시",
+      "lesson": "같은 통제 목록을 쓰는 것만으로는 부족하고, \"기존 결과를 받아들이는 것이 기본값이고 재시험은 예외 승인\"이라는 규정이 따로 있어야 함. 규정이 있어도 실천이 안 돼 2021년 감사와 2024년 부장관 메모가 다시 다룸",
+      "unified": {"criteria": true, "method": true, "tool": false},
+      "unified_detail": {
+        "criteria": "NIST SP 800-53 통제 목록 하나를 연방 민간·국방·NSS가 공용. CNSSI 1253은 그 목록에서 NSS 기준선만 정함",
+        "method": "NIST SP 800-37 RMF 7단계, 문서 형식은 CNSSI 1254",
+        "tool": "통일 대상 아님(eMASS 같은 저장소는 공통)"
+      },
+      "rule": "DoDI 8510.01 1.2.f(2022), 2014년판 Enclosure 5(\"presumes acceptance\"), 2016 DoD CIO 메모(\"not authorized to retest\"), 2024 부장관 메모",
+      "exception": "위험이 너무 클 때 거부 가능. 다시 시험하려면 DoD CIO 승인(2016 메모)",
+      "without_rule": "같은 SP 800-53 통제로 평가해도 구성군이 다른 구성군의 증거를 \"frequently do not evaluate\"",
+      "with_rule": "\"presumes acceptance\", \"not authorized to retest\", \"default\"",
+      "status": "확인",
+      "sources": "NIST SP 800-37 Rev.2, DoDI 8510.01(2022·2014), DoD CIO 메모 2016.10.18, CNSSI 1253 [확인 원문·사본] · 2024 메모·플레이북·DODIG 감사는 [2차]",
+      "proposal_link": "②"
+    },
+    {
+      "id": "do330",
+      "name": "DO-330 도구 자격",
+      "full": "항공 소프트웨어 도구 자격 (DO-330 Tool Qualification)",
+      "plain": "항공 소프트웨어를 검사하는 '도구' 자체를 믿어도 되는지 보이는 방법. 조건이 같으면 다른 사업에서 다시 검증하지 않고 재사용",
+      "recognizes": "검증 도구 자체의 신뢰성",
+      "how": "특정 인증 사업 안에서 그 사업의 용도와 도구 자격 등급(TQL)에 대해 도구 자격을 인정받음. 같은 용도·등급이면 변경 영향 분석만으로 다른 사업에 재사용할 수 있음 (독립된 \"도구 인증서\"는 아님)",
+      "lesson": "검증된 도구·용도 목록을 두고, 재사용할 때 변경 영향 분석만 요구하는 형태가 현실적임. 도구 결과서를 그대로 인정하는 방식보다 좁음",
+      "unified": {"criteria": true, "method": true, "tool": true},
+      "unified_detail": {
+        "criteria": "DO-178C 목표(objectives)와 소프트웨어 등급(A~D)",
+        "method": "DO-178C 생명주기 프로세스, DO-330 도구 생명주기",
+        "tool": "도구 자체를 TQL-1~5로 등급화하고 재사용 조건을 규정(11.2)"
+      },
+      "rule": "DO-330 11.2(재사용 조건), FAA AC 20-115D/EASA AMC 20-115D 10항(인정 방법). 그래도 \"자격증\"은 없고 사업별 인증당국 승인",
+      "exception": "도구나 환경이 바뀌면 변경 영향 분석과 재검증(11.2.2·11.2.3)",
+      "without_rule": "DO-178B 때는 재사용 지침이 없어 사업마다 도구 자격을 반복",
+      "with_rule": "DO-330 11.2가 재사용 조건을 적고 AC/AMC 20-115D가 이를 허용 가능한 방법으로 인정",
+      "status": "확인",
+      "sources": "FAA AC 20-115D 10항·10.c(2)(a), EASA AMC 20-115D [확인 원문] · DO-330 11.2 세부 조건은 [2차](원문 유료)",
+      "proposal_link": "④"
+    }
+  ],
+  "transfer": [
+    "방사청 신뢰성시험·행안부 개발보안·K-RMF·KCMVP·CC 사이에 \"시험 항목 대응표\"를 먼저 만든다(CNSSI 1253 방식)",
+    "대응표 위에 인정 규정을 둔다: (가) 인정 범위 (나) 재시험 금지와 예외 승인 절차 (다) 분쟁 조정 주체",
+    "시험성적서에 \"다른 제도에서 인정되는 항목\"을 표기한다(CCRA 인증서 로고 문구 방식)",
+    "도구는 버전·환경·사용 범위를 고정한 조건부 인정으로 하고, 조건이 바뀌면 변경 영향 분석만 하게 한다(DO-330 11.2 방식)",
+    "결과 저장소를 공유한다(eMASS 방식). 저장소 없이는 인정할 재료가 없다"
+  ]
+}
