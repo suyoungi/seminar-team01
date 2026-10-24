@@ -1,0 +1,85 @@
+cwe_id,cwe,name,abstraction,status
+5,CWE-5,J2EE Misconfiguration: Data Transmission Without Encryption,Variant,Draft
+6,CWE-6,J2EE Misconfiguration: Insufficient Session-ID Length,Variant,Incomplete
+7,CWE-7,J2EE Misconfiguration: Missing Custom Error Page,Variant,Incomplete
+8,CWE-8,J2EE Misconfiguration: Entity Bean Declared Remote,Variant,Incomplete
+9,CWE-9,J2EE Misconfiguration: Weak Access Permissions for EJB Methods,Variant,Draft
+95,CWE-95,Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection'),Variant,Incomplete
+102,CWE-102,Struts: Duplicate Validation Forms,Variant,Incomplete
+103,CWE-103,Struts: Incomplete validate() Method Definition,Variant,Draft
+104,CWE-104,Struts: Form Bean Does Not Extend Validation Class,Variant,Draft
+105,CWE-105,Struts: Form Field Without Validator,Variant,Draft
+106,CWE-106,Struts: Plug-in Framework not in Use,Variant,Draft
+107,CWE-107,Struts: Unused Validation Form,Variant,Draft
+108,CWE-108,Struts: Unvalidated Action Form,Variant,Incomplete
+109,CWE-109,Struts: Validator Turned Off,Variant,Draft
+110,CWE-110,Struts: Validator Without Form Field,Variant,Draft
+111,CWE-111,Direct Use of Unsafe JNI,Variant,Draft
+191,CWE-191,Integer Underflow (Wrap or Wraparound),Base,Draft
+192,CWE-192,Integer Coercion Error,Variant,Incomplete
+197,CWE-197,Numeric Truncation Error,Base,Incomplete
+209,CWE-209,Generation of Error Message Containing Sensitive Information,Base,Draft
+245,CWE-245,J2EE Bad Practices: Direct Management of Connections,Variant,Draft
+246,CWE-246,J2EE Bad Practices: Direct Use of Sockets,Variant,Draft
+248,CWE-248,Uncaught Exception,Base,Draft
+362,CWE-362,Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition'),Class,Draft
+366,CWE-366,Race Condition within a Thread,Base,Draft
+374,CWE-374,Passing Mutable Objects to an Untrusted Method,Base,Draft
+375,CWE-375,Returning a Mutable Object to an Untrusted Caller,Base,Draft
+382,CWE-382,J2EE Bad Practices: Use of System.exit(),Variant,Draft
+383,CWE-383,J2EE Bad Practices: Direct Use of Threads,Variant,Draft
+395,CWE-395,Use of NullPointerException Catch to Detect NULL Pointer Dereference,Base,Draft
+396,CWE-396,Declaration of Catch for Generic Exception,Base,Draft
+397,CWE-397,Declaration of Throws for Generic Exception,Base,Draft
+460,CWE-460,Improper Cleanup on Thrown Exception,Base,Draft
+462,CWE-462,Duplicate Key in Associative List (Alist),Variant,Incomplete
+470,CWE-470,Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection'),Base,Draft
+476,CWE-476,NULL Pointer Dereference,Base,Stable
+478,CWE-478,Missing Default Case in Multiple Condition Expression,Base,Draft
+481,CWE-481,Assigning instead of Comparing,Variant,Draft
+484,CWE-484,Omitted Break Statement in Switch,Base,Draft
+486,CWE-486,Comparison of Classes by Name,Variant,Draft
+487,CWE-487,Reliance on Package-level Scope,Base,Incomplete
+491,CWE-491,Public cloneable() Method Without Final ('Object Hijack'),Variant,Draft
+492,CWE-492,Use of Inner Class Containing Sensitive Data,Variant,Draft
+493,CWE-493,Critical Public Variable Without Final Modifier,Variant,Draft
+495,CWE-495,Private Data Structure Returned From A Public Method,Variant,Draft
+496,CWE-496,Public Data Assigned to Private Array-Typed Field,Variant,Incomplete
+498,CWE-498,Cloneable Class Containing Sensitive Information,Variant,Draft
+499,CWE-499,Serializable Class Containing Sensitive Data,Variant,Draft
+500,CWE-500,Public Static Field Not Marked Final,Variant,Draft
+502,CWE-502,Deserialization of Untrusted Data,Base,Draft
+536,CWE-536,Servlet Runtime Error Message Containing Sensitive Information,Variant,Incomplete
+537,CWE-537,Java Runtime Error Message Containing Sensitive Information,Variant,Incomplete
+543,CWE-543,Use of Singleton Pattern Without Synchronization in a Multithreaded Context,Variant,Incomplete
+555,CWE-555,J2EE Misconfiguration: Plaintext Password in Configuration File,Variant,Draft
+567,CWE-567,Unsynchronized Access to Shared Data in a Multithreaded Context,Base,Draft
+568,CWE-568,finalize() Method Without super.finalize(),Variant,Draft
+572,CWE-572,Call to Thread run() instead of start(),Variant,Draft
+574,CWE-574,EJB Bad Practices: Use of Synchronization Primitives,Variant,Draft
+575,CWE-575,EJB Bad Practices: Use of AWT Swing,Variant,Draft
+576,CWE-576,EJB Bad Practices: Use of Java I/O,Variant,Draft
+577,CWE-577,EJB Bad Practices: Use of Sockets,Variant,Draft
+578,CWE-578,EJB Bad Practices: Use of Class Loader,Variant,Draft
+579,CWE-579,J2EE Bad Practices: Non-serializable Object Stored in Session,Variant,Draft
+580,CWE-580,clone() Method Without super.clone(),Variant,Draft
+581,CWE-581,Object Model Violation: Just One of Equals and Hashcode Defined,Variant,Draft
+582,CWE-582,"Array Declared Public, Final, and Static",Variant,Draft
+583,CWE-583,finalize() Method Declared Public,Variant,Incomplete
+585,CWE-585,Empty Synchronized Block,Variant,Draft
+586,CWE-586,Explicit Call to Finalize(),Base,Draft
+594,CWE-594,J2EE Framework: Saving Unserializable Objects to Disk,Variant,Incomplete
+595,CWE-595,Comparison of Object References Instead of Object Contents,Variant,Incomplete
+597,CWE-597,Use of Wrong Operator in String Comparison,Variant,Draft
+600,CWE-600,Uncaught Exception in Servlet,Variant,Draft
+607,CWE-607,Public Static Final Field References Mutable Object,Variant,Draft
+608,CWE-608,Struts: Non-private Field in ActionForm Class,Variant,Draft
+609,CWE-609,Double-Checked Locking,Base,Draft
+617,CWE-617,Reachable Assertion,Base,Draft
+766,CWE-766,Critical Data Element Declared Public,Base,Incomplete
+767,CWE-767,Access to Critical Private Variable via Public Method,Base,Incomplete
+917,CWE-917,Improper Neutralization of Special Elements used in an Expression Language Statement ('Expression Language Injection'),Base,Incomplete
+1235,CWE-1235,Incorrect Use of Autoboxing and Unboxing for Performance Critical Operations,Base,Incomplete
+1335,CWE-1335,Incorrect Bitwise Shift of Integer,Base,Draft
+1336,CWE-1336,Improper Neutralization of Special Elements Used in a Template Engine,Base,Incomplete
+1341,CWE-1341,Multiple Releases of Same Resource or Handle,Base,Incomplete

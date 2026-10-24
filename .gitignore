@@ -6,3 +6,7 @@
 # 운영체제가 만드는 파일
 .DS_Store
 Thumbs.db
+
+# Python 가상환경·캐시
+.venv/
+__pycache__/

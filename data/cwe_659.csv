@@ -1,0 +1,98 @@
+cwe_id,cwe,name,abstraction,status
+14,CWE-14,Compiler Removal of Code to Clear Buffers,Variant,Draft
+119,CWE-119,Improper Restriction of Operations within the Bounds of a Memory Buffer,Class,Stable
+120,CWE-120,Buffer Copy without Checking Size of Input ('Classic Buffer Overflow'),Base,Incomplete
+121,CWE-121,Stack-based Buffer Overflow,Variant,Draft
+122,CWE-122,Heap-based Buffer Overflow,Variant,Draft
+123,CWE-123,Write-what-where Condition,Base,Draft
+124,CWE-124,Buffer Underwrite ('Buffer Underflow'),Base,Incomplete
+125,CWE-125,Out-of-bounds Read,Base,Draft
+126,CWE-126,Buffer Over-read,Variant,Draft
+127,CWE-127,Buffer Under-read,Variant,Draft
+128,CWE-128,Wrap-around Error,Base,Incomplete
+129,CWE-129,Improper Validation of Array Index,Variant,Draft
+130,CWE-130,Improper Handling of Length Parameter Inconsistency,Base,Incomplete
+131,CWE-131,Incorrect Calculation of Buffer Size,Base,Draft
+134,CWE-134,Use of Externally-Controlled Format String,Base,Draft
+135,CWE-135,Incorrect Calculation of Multi-Byte String Length,Base,Draft
+158,CWE-158,Improper Neutralization of Null Byte or NUL Character,Variant,Incomplete
+170,CWE-170,Improper Null Termination,Base,Incomplete
+188,CWE-188,Reliance on Data/Memory Layout,Base,Draft
+191,CWE-191,Integer Underflow (Wrap or Wraparound),Base,Draft
+192,CWE-192,Integer Coercion Error,Variant,Incomplete
+194,CWE-194,Unexpected Sign Extension,Variant,Incomplete
+195,CWE-195,Signed to Unsigned Conversion Error,Variant,Draft
+196,CWE-196,Unsigned to Signed Conversion Error,Variant,Draft
+197,CWE-197,Numeric Truncation Error,Base,Incomplete
+242,CWE-242,Use of Inherently Dangerous Function,Base,Draft
+243,CWE-243,Creation of chroot Jail Without Changing Working Directory,Variant,Draft
+244,CWE-244,Improper Clearing of Heap Memory Before Release ('Heap Inspection'),Variant,Draft
+248,CWE-248,Uncaught Exception,Base,Draft
+362,CWE-362,Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition'),Class,Draft
+364,CWE-364,Signal Handler Race Condition,Base,Incomplete
+366,CWE-366,Race Condition within a Thread,Base,Draft
+374,CWE-374,Passing Mutable Objects to an Untrusted Method,Base,Draft
+375,CWE-375,Returning a Mutable Object to an Untrusted Caller,Base,Draft
+396,CWE-396,Declaration of Catch for Generic Exception,Base,Draft
+397,CWE-397,Declaration of Throws for Generic Exception,Base,Draft
+401,CWE-401,Missing Release of Memory after Effective Lifetime,Variant,Draft
+415,CWE-415,Double Free,Variant,Draft
+416,CWE-416,Use After Free,Variant,Stable
+457,CWE-457,Use of Uninitialized Variable,Variant,Draft
+460,CWE-460,Improper Cleanup on Thrown Exception,Base,Draft
+462,CWE-462,Duplicate Key in Associative List (Alist),Variant,Incomplete
+463,CWE-463,Deletion of Data Structure Sentinel,Base,Incomplete
+464,CWE-464,Addition of Data Structure Sentinel,Base,Incomplete
+466,CWE-466,Return of Pointer Value Outside of Expected Range,Base,Draft
+467,CWE-467,Use of sizeof() on a Pointer Type,Variant,Draft
+468,CWE-468,Incorrect Pointer Scaling,Base,Incomplete
+469,CWE-469,Use of Pointer Subtraction to Determine Size,Base,Draft
+476,CWE-476,NULL Pointer Dereference,Base,Stable
+478,CWE-478,Missing Default Case in Multiple Condition Expression,Base,Draft
+479,CWE-479,Signal Handler Use of a Non-reentrant Function,Variant,Draft
+480,CWE-480,Use of Incorrect Operator,Base,Draft
+481,CWE-481,Assigning instead of Comparing,Variant,Draft
+482,CWE-482,Comparing instead of Assigning,Variant,Draft
+483,CWE-483,Incorrect Block Delimitation,Base,Draft
+484,CWE-484,Omitted Break Statement in Switch,Base,Draft
+493,CWE-493,Critical Public Variable Without Final Modifier,Variant,Draft
+495,CWE-495,Private Data Structure Returned From A Public Method,Variant,Draft
+496,CWE-496,Public Data Assigned to Private Array-Typed Field,Variant,Incomplete
+498,CWE-498,Cloneable Class Containing Sensitive Information,Variant,Draft
+500,CWE-500,Public Static Field Not Marked Final,Variant,Draft
+543,CWE-543,Use of Singleton Pattern Without Synchronization in a Multithreaded Context,Variant,Incomplete
+558,CWE-558,Use of getlogin() in Multithreaded Application,Variant,Draft
+562,CWE-562,Return of Stack Variable Address,Base,Draft
+587,CWE-587,Assignment of a Fixed Address to a Pointer,Variant,Draft
+588,CWE-588,Attempt to Access Child of a Non-structure Pointer,Variant,Incomplete
+676,CWE-676,Use of Potentially Dangerous Function,Base,Draft
+680,CWE-680,Integer Overflow to Buffer Overflow,Compound,Draft
+690,CWE-690,Unchecked Return Value to NULL Pointer Dereference,Compound,Draft
+704,CWE-704,Incorrect Type Conversion or Cast,Class,Incomplete
+733,CWE-733,Compiler Optimization Removal or Modification of Security-critical Code,Base,Incomplete
+762,CWE-762,Mismatched Memory Management Routines,Variant,Incomplete
+763,CWE-763,Release of Invalid Pointer or Reference,Base,Incomplete
+766,CWE-766,Critical Data Element Declared Public,Base,Incomplete
+767,CWE-767,Access to Critical Private Variable via Public Method,Base,Incomplete
+781,CWE-781,Improper Address Validation in IOCTL with METHOD_NEITHER I/O Control Code,Variant,Draft
+782,CWE-782,Exposed IOCTL with Insufficient Access Control,Variant,Draft
+783,CWE-783,Operator Precedence Logic Error,Base,Draft
+785,CWE-785,Use of Path Manipulation Function without Maximum-sized Buffer,Variant,Incomplete
+786,CWE-786,Access of Memory Location Before Start of Buffer,Base,Incomplete
+787,CWE-787,Out-of-bounds Write,Base,Draft
+788,CWE-788,Access of Memory Location After End of Buffer,Base,Incomplete
+789,CWE-789,Memory Allocation with Excessive Size Value,Variant,Draft
+805,CWE-805,Buffer Access with Incorrect Length Value,Base,Incomplete
+806,CWE-806,Buffer Access Using Size of Source Buffer,Variant,Incomplete
+822,CWE-822,Untrusted Pointer Dereference,Base,Incomplete
+823,CWE-823,Use of Out-of-range Pointer Offset,Base,Incomplete
+824,CWE-824,Access of Uninitialized Pointer,Base,Incomplete
+825,CWE-825,Expired Pointer Dereference,Base,Incomplete
+839,CWE-839,Numeric Range Comparison Without Minimum Check,Base,Incomplete
+843,CWE-843,Access of Resource Using Incompatible Type ('Type Confusion'),Base,Incomplete
+910,CWE-910,Use of Expired File Descriptor,Base,Incomplete
+911,CWE-911,Improper Update of Reference Count,Base,Incomplete
+1325,CWE-1325,Improperly Controlled Sequential Memory Allocation,Base,Incomplete
+1335,CWE-1335,Incorrect Bitwise Shift of Integer,Base,Draft
+1341,CWE-1341,Multiple Releases of Same Resource or Handle,Base,Incomplete
+1429,CWE-1429,Missing Security-Relevant Feedback for Unexecuted Operations in Hardware Interface,Base,Incomplete

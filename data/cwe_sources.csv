@@ -1,0 +1,5 @@
+file,source,count,url,cwe_version,retrieved
+cwe_658.csv,CWE-658,103,https://cwe.mitre.org/data/csv/658.csv.zip,4.20,2026-10-17
+cwe_659.csv,CWE-659,97,https://cwe.mitre.org/data/csv/659.csv.zip,4.20,2026-10-17
+cwe_660.csv,CWE-660,84,https://cwe.mitre.org/data/csv/660.csv.zip,4.20,2026-10-17
+cwe_top25_2025.csv,2025 CWE Top 25 (CWE-1435),25,https://cwe.mitre.org/top25/archive/2025/2025_cwe_top25.html,4.20,2026-10-17
