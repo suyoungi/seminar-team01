@@ -202,6 +202,20 @@ ul.tl li { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; bord
 ul.tl li:last-child { border-bottom: 0; }
 ul.tl .d { color: var(--ink-3); font-size: .8rem; min-width: 64px; }
 
+/* 채택 매트릭스 */
+table.mx { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: .8rem; }
+.mx th { font-weight: 700; color: var(--ink-2); font-size: .76rem; padding: 4px 6px; vertical-align: bottom; text-align: center; }
+.mx thead th span { display: inline-block; max-width: 92px; line-height: 1.25; }
+.mx .mx-rowh { text-align: right; white-space: nowrap; color: var(--ink); padding-right: 10px; }
+.mx-cell { height: 46px; border-radius: 7px; text-align: center; cursor: pointer; transition: transform .1s; line-height: 1.2; vertical-align: middle; }
+.mx-cell.empty { background: var(--surface-2); cursor: default; opacity: .55; }
+.mx-cell:not(.empty):hover { transform: scale(1.04); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
+.mx-cell .f { display: block; font-weight: 700; }
+.mx-cell .c { display: block; font-size: .68rem; opacity: .85; }
+.legend-row .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+ul.bul { margin: 0; padding-left: 18px; font-size: .9rem; }
+ul.bul li { margin: 6px 0; }
+
 /* 빈 화면 안내 */
 .placeholder { border: 1px dashed var(--line-2); border-radius: var(--radius); padding: 36px; text-align: center; color: var(--ink-3); }
 .err { border: 1px solid var(--critical); background: var(--critical-bg); color: var(--critical); border-radius: 12px; padding: 14px 16px; }
@@ -656,6 +670,104 @@ function renderInstitutionDetail(sec, id) {
     </div>
   </div>`;
 }
+
+/* =========================================================
+   표준 채택 매트릭스: 제도 × 표준 격자 · 분포 · 표 보기
+   ========================================================= */
+/* 채택 형태 → 색. "얼마나 그대로 가져왔나"의 등급이라 한 가지 색(파랑)의 진하기로, 국내 기준은 주황 */
+const FORM_STYLE = {
+  '동일 채택':            { bg: 'var(--q600)', ink: '#fff', short: '동일' },
+  '동일 채택 + 국내 추가': { bg: 'var(--q550)', ink: '#fff', short: '동일+추가' },
+  '수정 채택':            { bg: 'var(--q450)', ink: '#fff', short: '수정' },
+  '부분 채택':            { bg: 'var(--q350)', ink: '#fff', short: '부분' },
+  '참조':                 { bg: 'var(--q200)', ink: 'var(--ink)', short: '참조' },
+  '국내 추가':            { bg: 'var(--s2)', ink: '#fff', short: '국내 추가' },
+  '국내 고유':            { bg: 'var(--s2)', ink: '#fff', short: '국내 고유' },
+  '미채택':               { bg: 'var(--surface-2)', ink: 'var(--ink-3)', short: '—' },
+};
+const adoptState = { table: false, sel: null };
+
+function adoptionRows() {
+  const mine = DATA.userRows.map((r, i) => ({ institution_id: 'user' + i, institution_label: r.name, standard_family: r.standard_family, standard_detail: r.standard_detail, form: r.form, confidence: r.confidence, domestic_addition: r.domestic_addition, basis: r.basis, mine: true }));
+  return [...DATA.adoption, ...mine];
+}
+
+RENDER.adoption = (sec) => {
+  const rows = adoptionRows();
+  const fams = DATA.rules.standard_families.map(s => s.key);
+  const labels = [...new Set(rows.map(r => r.institution_label))];
+  const byForm = {}; rows.forEach(r => byForm[r.form] = (byForm[r.form] || 0) + 1);
+  const confirmed = rows.filter(r => r.confidence === '확인').length;
+  const intl = rows.filter(r => /동일|수정|부분/.test(r.form)).length;
+  const domestic = rows.filter(r => /국내/.test(r.form)).length;
+  const famPlain = Object.fromEntries(DATA.rules.standard_families.map(s => [s.key, s.plain]));
+
+  const cell = (lab, fam) => {
+    const r = rows.find(x => x.institution_label === lab && x.standard_family === fam);
+    if (!r) return `<td class="mx-cell empty"></td>`;
+    const st = FORM_STYLE[r.form] || FORM_STYLE['미채택'];
+    const tipHtml = `<b>${esc(lab)}</b> × ${esc(fam)}<br>${esc(r.standard_detail)}<br><b>${esc(r.form)}</b> (${esc(r.confidence)})${r.domestic_addition ? '<br>국내 추가: ' + esc(r.domestic_addition) : ''}`;
+    return `<td class="mx-cell" style="background:${st.bg};color:${st.ink}" data-tip="${esc(tipHtml)}" data-lab="${esc(lab)}" data-fam="${esc(fam)}"><span class="f">${esc(st.short)}</span><span class="c">${esc(r.confidence)}</span></td>`;
+  };
+
+  sec.innerHTML = viewHead('2장 · 채택 형태', '표준 채택 매트릭스',
+    '제도마다 국제·해외 표준을 어떤 방식으로 가져왔는지를 한 표로 놓았습니다. 가로는 참조 표준의 계열, 세로는 제도(또는 제도 안의 시험 갈래)입니다.',
+    '칸의 파란색이 진할수록 국제표준을 그대로 가져온 것이고, 연할수록 이름만 참조한 것입니다. 주황색은 참조 표준 없이 국내에서 만든 기준입니다. 칸 아래 작은 글자는 그 판정을 원문으로 확인했는지(확인), 자료 없이 판단했는지(추정)입니다. 칸을 누르면 근거가 아래에 펼쳐집니다.') + `
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="card kpi"><div class="label">판정한 칸</div><div class="value">${rows.length}<span class="unit">개</span></div><div class="plain">제도 9개를 시험 갈래까지 나누면 ${labels.length}행</div></div>
+    <div class="card kpi"><div class="label">원문으로 확인한 판정</div><div class="value">${Math.round(confirmed / rows.length * 100)}<span class="unit">%</span></div><div class="plain">${confirmed}/${rows.length}칸. 나머지는 추정 또는 기획안</div></div>
+    <div class="card kpi"><div class="label">국제·해외 표준을 가져온 칸</div><div class="value">${intl}<span class="unit">개</span></div><div class="plain">동일·수정·부분 채택. 방식이 제도마다 다름</div></div>
+    <div class="card kpi"><div class="label">국내에서 만든 기준</div><div class="value">${domestic}<span class="unit">개</span></div><div class="plain">국내 추가·국내 고유. 외국과 바로 맞춰 볼 수 없는 부분</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="legend-row" id="formLegend">${DATA.rules.forms.filter(f => f.key !== '미채택').map(f => { const st = FORM_STYLE[f.key]; return `<span data-tip="${esc(f.plain)}"><i class="sw" style="background:${st.bg}"></i>${esc(f.key)}</span>`; }).join('')}</div>
+    <span class="spacer"></span>
+    <button class="btn" id="adoptToggle">${adoptState.table ? '격자 보기' : '표 보기'}</button>
+    <button class="btn" id="adoptExport">내보내기 CSV</button>
+  </div>
+
+  ${adoptState.table ? `
+  <div class="card tbl-wrap"><table class="tbl"><thead><tr><th>제도</th><th>표준 계열</th><th>표준 세부</th><th>채택 형태</th><th>확인</th><th>국내 추가 항목</th><th>근거</th></tr></thead>
+    <tbody>${rows.map(r => `<tr><td>${esc(r.institution_label)}${r.mine ? ' ' + badge('내 입력') : ''}</td><td>${esc(r.standard_family)}</td><td>${esc(r.standard_detail)}</td><td><b>${esc(r.form)}</b></td><td>${badge(r.confidence)}</td><td>${esc(r.domestic_addition || '—')}</td><td class="small">${esc(r.basis)}</td></tr>`).join('')}</tbody></table></div>`
+  : `
+  <div class="card tbl-wrap" style="padding:12px">
+    <table class="mx"><thead><tr><th class="mx-rowh"></th>${fams.map(f => `<th data-tip="${esc(famPlain[f])}"><span>${esc(f)}</span></th>`).join('')}</tr></thead>
+    <tbody>${labels.map(lab => `<tr><th class="mx-rowh">${esc(lab)}${rows.find(r => r.institution_label === lab)?.mine ? ' ' + badge('내 입력') : ''}</th>${fams.map(f => cell(lab, f)).join('')}</tr>`).join('')}</tbody></table>
+    <p class="tiny" style="margin-top:8px">표준 계열 이름에 마우스를 올리면 그 표준이 무엇인지 보입니다. 빈 칸은 그 제도가 그 계열을 쓰지 않는다는 뜻이 아니라, 이 연구에서 판정하지 않았다는 뜻입니다.</p>
+  </div>
+  <div id="adoptDetail" class="card" style="display:none;margin-top:14px"></div>`}
+
+  <hr class="sep">
+  <div class="grid g2">
+    <div class="card"><h3>채택 형태별 개수 <span class="sub">판정 ${rows.length}칸</span></h3>
+      ${SVG.hbar({ items: DATA.rules.forms.filter(f => byForm[f.key]).map(f => ({ label: f.key, value: byForm[f.key], color: FORM_STYLE[f.key].bg, tip: `${f.key}: ${byForm[f.key]}칸 — ${f.plain}` })), labelW: 160, width: 560, unit: '칸' })}
+      <figcaption>그림 3. 국제표준을 그대로 쓰는 제도(동일 채택)는 암호모듈·CC처럼 국제 통용이 목적인 제도이고, 국방 신뢰성시험은 코딩규칙·CWE를 '부분 채택'하면서 44개 목록과 동적시험 등급표를 국내에서 따로 정했습니다.</figcaption></div>
+    <div class="card"><h3>이 표에서 보려는 것</h3>
+      <ul class="bul">
+        <li>같은 CWE를 참조하는 제도(①②)가 서로 다른 선정 목록을 쓴다는 점. 겹침 크기는 <a href="#/overlap">겹침 탐색기</a>에서 확인 ${badge('확인')}</li>
+        <li>국제표준을 그대로 채택해도 상호인정 협정이 없으면 결과가 인정되지 않는다는 점. KCMVP(④)는 미국·캐나다 CMVP와 같은 ISO/IEC 19790·24759를 쓰지만 상호인정 협정은 확인되지 않음 ${badge('확인 필요')}</li>
+        <li>CC(⑤)는 국제용 인증만 CCRA로 가입국에서 통용되고, 국내용 인증은 국내에서만 효력이 있다는 점 ${badge('확인')} 고시 별표 2 · 국내용 효력은 ${badge('2차')}</li>
+        <li>국내 추가 항목이 많은 제도(①)는 인정 통로 자체가 없다는 점 ${badge('추정')} 해외 사례의 "인정 규정이 따로 있어야 함"과 이어짐</li>
+        <li>제도 사이에 결과·도구를 인정하는 조항이 이미 17곳 있지만, 신뢰성시험의 정적분석 결과를 다른 제도가 인정하는 조항은 없음 ${badge('확인')} docs/A3</li>
+      </ul></div>
+  </div>`;
+
+  $('#adoptToggle').addEventListener('click', () => { adoptState.table = !adoptState.table; RENDER.adoption(sec); });
+  $('#adoptExport').addEventListener('click', () => download('표준_채택_매트릭스.csv', toCSV(rows, ['institution_label', 'standard_family', 'standard_detail', 'form', 'confidence', 'domestic_addition', 'basis']), 'text/csv'));
+  $$('.mx-cell[data-lab]', sec).forEach(td => td.addEventListener('click', () => {
+    const r = rows.find(x => x.institution_label === td.dataset.lab && x.standard_family === td.dataset.fam);
+    const d = $('#adoptDetail'); d.style.display = 'block';
+    const f = DATA.rules.forms.find(x => x.key === r.form);
+    d.innerHTML = `<h3>${esc(r.institution_label)} × ${esc(r.standard_family)} <span class="sub">${badge(r.confidence)}</span></h3>
+      <div class="field"><div class="fk">참조 표준</div><div class="fv">${esc(r.standard_detail)}</div></div>
+      <div class="field"><div class="fk">채택 형태</div><div class="fv"><b>${esc(r.form)}</b> — ${esc(f ? f.plain : '')}</div></div>
+      <div class="field"><div class="fk">국내 추가 항목</div><div class="fv">${esc(r.domestic_addition || '—')}</div></div>
+      <div class="field"><div class="fk">근거</div><div class="fv">${esc(r.basis)}</div></div>
+      ${r.mine ? '' : `<p class="tiny" style="margin-top:8px"><a href="#/institutions/${esc(r.institution_id)}">이 제도의 카드 보기 →</a></p>`}`;
+    d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }));
+};
 
 /* =========================================================
    시작
