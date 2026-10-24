@@ -178,6 +178,30 @@ figcaption { font-size: .82rem; color: var(--ink-3); margin-top: 8px; }
 .legend-row { display: flex; flex-wrap: wrap; gap: 10px 18px; font-size: .86rem; color: var(--ink-2); }
 .legend-row span { display: inline-flex; gap: 6px; align-items: center; }
 
+/* 제도 지도 */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+.inst-card { display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--c, var(--line-2)); border-radius: 12px; padding: 16px 18px; color: var(--ink); box-shadow: var(--shadow); transition: transform .12s, border-color .12s; }
+.inst-card:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--c); }
+.inst-card .top { display: flex; justify-content: space-between; align-items: center; }
+.inst-card .no { width: 24px; height: 24px; border-radius: 50%; background: var(--c); color: #fff; display: grid; place-items: center; font-size: .78rem; font-weight: 800; }
+.inst-card h4 { font-size: 1rem; }
+.inst-card .plain { font-size: .88rem; color: var(--ink-2); flex: 1; }
+.inst-card .facts { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.inst-card .more { font-size: .82rem; color: var(--accent); font-weight: 600; }
+.owner { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--ink-2); }
+.owner::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: var(--c); }
+.detail-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+.field { display: grid; grid-template-columns: 120px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.field:last-child { border-bottom: 0; }
+.field .fk { font-size: .82rem; font-weight: 700; color: var(--ink-3); padding-top: 2px; }
+.field .fv { font-size: .92rem; }
+@media (max-width: 600px) { .field { grid-template-columns: 1fr; gap: 2px; } }
+ul.tl { list-style: none; padding: 0; margin: 0; }
+ul.tl li { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+ul.tl li:last-child { border-bottom: 0; }
+ul.tl .d { color: var(--ink-3); font-size: .8rem; min-width: 64px; }
+
 /* 빈 화면 안내 */
 .placeholder { border: 1px dashed var(--line-2); border-radius: var(--radius); padding: 36px; text-align: center; color: var(--ink-3); }
 .err { border: 1px solid var(--critical); background: var(--critical-bg); color: var(--critical); border-radius: 12px; padding: 14px 16px; }
@@ -371,7 +395,7 @@ function route() {
   const sec = $('#v-' + view);
   if (RENDER[view]) { try { RENDER[view](sec, param); } catch (e) { sec.innerHTML = `<div class="err">화면을 그리지 못했습니다: ${esc(e.message)}</div>`; console.error(e); } }
   else sec.innerHTML = viewHead('준비 중', VIEWS.find(v => v.id === view).title) + placeholder('이 화면은 다음 PR에서 채웁니다.');
-  if (!document.body.classList.contains('print-all')) window.scrollTo({ top: 0 });
+  if (!document.body.classList.contains('print-all')) requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' }));
 }
 function renderAllForPrint() { VIEWS.forEach(v => { const sec = $('#v-' + v.id); if (RENDER[v.id]) RENDER[v.id](sec, null); }); }
 
@@ -496,6 +520,141 @@ function conceptDiagram() {
     <text x="${rx + rw / 2}" y="${ly + 32}" text-anchor="middle" class="lbl" style="font-size:14px">시험 n번 · 소명 n번</text>
     <text x="${rx + rw / 2}" y="${ly + 54}" text-anchor="middle" style="font-size:12px">결과는 서로 인정 안 됨</text>
   </svg>`;
+}
+
+/* =========================================================
+   제도 지도: 카드 격자 · 연표 · 상세 페이지 · 내 제도 추가
+   ========================================================= */
+const GROUP_COLOR = { '국방': 'var(--s1)', '행정·공공': 'var(--s2)', '정보보안': 'var(--s3)', '품질': 'var(--s4)', '항공': 'var(--s5)', '내 입력': 'var(--s7)' };
+const instState = { group: '전체', role: '전체' };
+
+function allInstitutions() {
+  const mine = DATA.userRows.map((r, i) => ({ id: 'user' + i, no: '+', name: r.name, short: r.name, plain: r.plain, role: r.role, owner: r.owner, owner_group: '내 입력', quant: r.role === '정량 비교', basis: r.basis, standards: r.standard_detail, adoption: r.form + ' [' + r.confidence + ']', agency: r.owner, target: '', items: '', recognition: '', validity: '', timeline: [], mine: true }));
+  return [...DATA.inst.institutions, ...mine];
+}
+function ownerChip(inst) {
+  return `<span class="owner" style="--c:${GROUP_COLOR[inst.owner_group] || 'var(--ink-3)'}">${esc(inst.owner)}</span>`;
+}
+
+RENDER.institutions = (sec, param) => {
+  if (param) return renderInstitutionDetail(sec, param);
+  const all = allInstitutions();
+  const groups = ['전체', ...new Set(all.map(i => i.owner_group))];
+  const roles = ['전체', '정량 비교', '제도 소개', '병행 사례'];
+  const list = all.filter(i => (instState.group === '전체' || i.owner_group === instState.group) && (instState.role === '전체' || i.role === instState.role));
+  const owners = new Set(DATA.inst.institutions.map(i => i.owner.split(' · ')[0]));
+
+  sec.innerHTML = viewHead('1장 · 제도 현황', '제도 9개 지도',
+    '국방 소프트웨어가 받는 보안·품질 시험·인증 제도를 같은 틀(근거·소관·대상·시험 항목·참조 표준·채택 형태·상호인정)로 정리했습니다. 앞의 두 제도만 약점 목록을 숫자로 비교하고, 나머지는 제도 소개와 채택 형태 분류까지 합니다.',
+    '카드를 누르면 일곱 항목이 모두 적힌 상세 페이지가 열립니다. 카드 색 띠는 소관 기관의 분야이고, 배지는 이 연구에서의 역할입니다. 모든 문장 뒤에는 원문을 직접 확인했는지(확인), 기사로만 봤는지(2차), 자료 없이 판단했는지(추정)가 붙어 있습니다.') + `
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="card kpi"><div class="label">조사한 제도</div><div class="value">${DATA.inst.institutions.length}<span class="unit">개</span></div><div class="plain">정량 비교 2 · 제도 소개 6 · 병행 사례 1</div></div>
+    <div class="card kpi"><div class="label">소관 기관</div><div class="value">${owners.size}<span class="unit">곳</span></div><div class="plain">${esc([...owners].join(', '))}</div></div>
+    <div class="card kpi"><div class="label">결과 유효기간이 조문에 있는 제도</div><div class="value">${DATA.inst.institutions.filter(i => /년/.test(i.validity) && !/2차/.test(i.validity)).length}<span class="unit">개</span></div><div class="plain">K-RMF(인가 1~5년), 보안기능확인서(5년·2년), DQ마크(4년 이내). 나머지는 조문 없음 또는 2차 자료</div></div>
+    <div class="card kpi"><div class="label">다른 제도 결과를 인정하는 조항</div><div class="value">17<span class="unit">곳</span></div><div class="plain">인증서·도구·심사 생략 수준. 시험 결과 수준은 0곳</div><div class="src tiny">${badge('확인')} docs/A3</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="chips" id="instGroups">${groups.map(g => `<button class="chip ${instState.group === g ? 'on' : ''}" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>
+    <span class="tiny">|</span>
+    <div class="chips" id="instRoles">${roles.map(r => `<button class="chip ${instState.role === r ? 'on' : ''}" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+    <span class="spacer"></span>
+    <button class="btn" id="instAdd">내 제도 추가</button>
+    <button class="btn" id="instExport">내보내기 CSV</button>
+  </div>
+  <div id="instInput" class="card" style="display:none;margin-bottom:16px">
+    <h3>내 제도 추가 <span class="sub">붙여넣기 또는 파일 선택 · 브라우저 안에서만 유지되고 저장소는 바뀌지 않음</span></h3>
+    <p class="small muted">형식은 <a href="data/dashboard/examples/내_제도_입력_예시.csv">예시 입력 CSV</a>와 같습니다(머리글 10개: name, owner, role, plain, standard_family, standard_detail, form, confidence, domestic_addition, basis). 채택 형태(form)와 표준 계열(standard_family)은 <a href="data/dashboard/adoption_rules.json">기준 파일</a>에 있는 값만 받습니다.</p>
+    <textarea id="instCsv" rows="5" style="width:100%;margin:10px 0;font:13px/1.5 ui-monospace,monospace;border:1px solid var(--line-2);border-radius:8px;padding:8px;background:var(--surface-2);color:var(--ink)" placeholder="name,owner,role,plain,standard_family,standard_detail,form,confidence,domestic_addition,basis&#10;..."></textarea>
+    <div class="toolbar"><input type="file" id="instFile" accept=".csv,text/csv"><button class="btn primary" id="instApply">추가</button><button class="btn" id="instClear">입력 비우기</button><span id="instMsg" class="small muted"></span></div>
+  </div>
+
+  <div class="cards-grid" id="instCards">${list.map(instCard).join('') || placeholder('조건에 맞는 제도가 없습니다.')}</div>
+
+  <hr class="sep">
+  <div class="card">
+    <h3>제·개정 연표 <span class="sub">제도마다 근거 규정이 언제 생기고 바뀌었나</span></h3>
+    <figure>${timelineChart(DATA.inst.institutions)}<figcaption>그림 2. 점 하나가 제정·개정·시행 한 건. 색은 소관 기관의 분야. 채워진 점은 원문으로 확인한 날짜, 테두리만 있는 점은 2차 자료. 점에 마우스를 올리면 내용이 보입니다. 2024~2026년에 변경이 몰려 있는 것은 자료로 확인한 사실이고, 그 이유는 이 연구에서 다루지 않습니다.</figcaption></figure>
+  </div>`;
+
+  $('#instGroups').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { instState.group = b.dataset.g; RENDER.institutions(sec); } });
+  $('#instRoles').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { instState.role = b.dataset.r; RENDER.institutions(sec); } });
+  $('#instAdd').addEventListener('click', () => { const d = $('#instInput'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; });
+  $('#instFile').addEventListener('change', async e => { const f = e.target.files[0]; if (f) $('#instCsv').value = await f.text(); });
+  $('#instApply').addEventListener('click', () => { const msg = applyUserRows($('#instCsv').value); RENDER.institutions(sec); $('#instInput').style.display = 'block'; $('#instMsg').textContent = msg; });
+  $('#instClear').addEventListener('click', () => { DATA.userRows = []; RENDER.institutions(sec); });
+  $('#instExport').addEventListener('click', () => {
+    const cols = ['no', 'name', 'owner', 'owner_group', 'role', 'plain', 'validity', 'basis', 'agency', 'target', 'items', 'standards', 'adoption', 'recognition'];
+    download('제도_카드.csv', toCSV(allInstitutions(), cols), 'text/csv');
+  });
+};
+
+function instCard(i) {
+  const roleBadge = i.mine ? badge('내 입력') : badge(i.quant ? '확인' : '기획안', i.role);
+  return `<a class="inst-card" href="#/institutions/${esc(i.id)}" style="--c:${GROUP_COLOR[i.owner_group] || 'var(--ink-3)'}">
+    <div class="top"><span class="no">${esc(i.no)}</span>${roleBadge}</div>
+    <h4>${esc(i.name)}</h4>
+    <p class="plain">${esc(i.plain)}</p>
+    <div class="facts"><span>${ownerChip(i)}</span><span class="tiny">유효기간: ${i.validity ? rich(i.validity) : '입력 없음'}</span></div>
+    <span class="more">자세히 →</span></a>`;
+}
+
+function applyUserRows(text) {
+  if (!text.trim()) return '입력이 비어 있습니다.';
+  const rows = parseCSV(text);
+  const forms = new Set(DATA.rules.forms.map(f => f.key)), fams = new Set(DATA.rules.standard_families.map(s => s.key));
+  const ok = [], bad = [];
+  rows.forEach(r => {
+    if (!r.name) return;
+    if (!forms.has(r.form)) bad.push(`${r.name}: 기준에 없는 채택 형태 "${r.form}"`);
+    else if (!fams.has(r.standard_family)) bad.push(`${r.name}: 기준에 없는 표준 계열 "${r.standard_family}"`);
+    else ok.push(r);
+  });
+  DATA.userRows = [...DATA.userRows, ...ok];
+  return `${ok.length}건 추가` + (bad.length ? ` · 건너뜀 ${bad.length}건 — ${bad.join(' / ')}` : '');
+}
+
+/* 연표: 가로 축 연도, 세로 줄 제도 */
+function timelineChart(insts) {
+  const events = insts.flatMap(i => i.timeline.map(t => ({ ...t, inst: i })));
+  const years = events.map(e => +String(e.date).slice(0, 4));
+  const y0 = Math.min(...years) - 1, y1 = Math.max(...years) + 1;
+  const W = 960, labelW = 190, rowH = 30, top = 28, plotW = W - labelW - 30, H = top + insts.length * rowH + 20;
+  const x = d => { const [y, m] = String(d).split('-'); return labelW + ((+y + ((+m || 6) - 1) / 12 - y0) / (y1 - y0)) * plotW; };
+  const ticks = []; for (let y = y0 + 1; y < y1; y += (y1 - y0 > 12 ? 2 : 1)) ticks.push(y);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="제도별 제·개정 연표">
+    ${ticks.map(y => `<line class="grid" x1="${x(y + '-01')}" y1="${top - 8}" x2="${x(y + '-01')}" y2="${H - 16}"/><text x="${x(y + '-01')}" y="${top - 12}" text-anchor="middle" style="font-size:11px">${y}</text>`).join('')}
+    ${insts.map((i, r) => { const cy = top + r * rowH + rowH / 2; return `
+      <line class="axis" x1="${labelW}" y1="${cy}" x2="${W - 30}" y2="${cy}" style="stroke:var(--line)"/>
+      <text x="${labelW - 10}" y="${cy + 4}" text-anchor="end" class="lbl" style="font-size:12px">${esc(i.short)}</text>
+      ${i.timeline.map(t => `<circle cx="${x(t.date)}" cy="${cy}" r="6" fill="${t.status === '확인' ? GROUP_COLOR[i.owner_group] : 'var(--surface)'}" stroke="${GROUP_COLOR[i.owner_group]}" stroke-width="2" data-tip="<b>${esc(i.short)} · ${esc(t.date)}</b><br>${esc(t.label)} (${esc(t.status)})"/>`).join('')}`; }).join('')}
+  </svg>`;
+}
+
+function renderInstitutionDetail(sec, id) {
+  const all = allInstitutions(); const idx = all.findIndex(i => i.id === id); const i = all[idx];
+  if (!i) { sec.innerHTML = viewHead('1장', '제도를 찾을 수 없습니다') + `<a class="btn" href="#/institutions">← 제도 지도로</a>`; return; }
+  const F = DATA.inst._meta.field_labels;
+  const adoptionRows = i.mine ? [] : DATA.adoption.filter(r => r.institution_id === i.id);
+  const related = DATA.sth.stakeholders.filter(s => s.institutions.includes(i.id));
+  const prev = all[idx - 1], next = all[idx + 1];
+  sec.innerHTML = `
+  <div class="toolbar no-print"><a class="btn" href="#/institutions">← 제도 지도</a><span class="spacer"></span>${prev ? `<a class="btn" href="#/institutions/${prev.id}">← ${esc(prev.short)}</a>` : ''}${next ? `<a class="btn" href="#/institutions/${next.id}">${esc(next.short)} →</a>` : ''}</div>
+  <div class="view-head"><div class="eyebrow">제도 카드 ${esc(i.no)}</div><h2>${esc(i.name)}</h2>
+    <p class="lead">${esc(i.plain)}</p>
+    <div class="chips" style="margin-top:10px">${ownerChip(i)} ${i.mine ? badge('내 입력') : badge(i.quant ? '확인' : '기획안', i.role)} <span class="chip">유효기간: ${esc(i.validity || '입력 없음')}</span></div>
+  </div>
+  <div class="howto"><b>읽는 법</b><p>일곱 칸은 모든 제도에 같은 순서로 있습니다. "근거"는 어느 법·고시가 이 시험을 요구하는지, "채택 형태"는 국제표준을 어떻게 가져왔는지, "다른 제도 결과 인정"은 이 제도가 다른 제도의 결과를 받아 주는지(또는 받는지)입니다. 문장 끝 배지가 ${badge('추정')}이면 자료 없이 세운 판단이니 사실로 읽지 마세요.</p></div>
+  <div class="detail-grid">
+    <div class="card stack">
+      ${DATA.inst._meta.fields.map(f => `<div class="field"><div class="fk">${esc(F[f])}</div><div class="fv">${i[f] ? rich(i[f]) : '<span class="muted">입력 없음</span>'}</div></div>`).join('')}
+    </div>
+    <div class="stack">
+      <div class="card"><h3>이 제도의 연표</h3>${i.timeline.length ? `<ul class="tl">${i.timeline.map(t => `<li><span class="d num">${esc(t.date)}</span><span>${esc(t.label)}</span> ${badge(t.status)}</li>`).join('')}</ul>` : '<p class="muted small">입력 없음</p>'}</div>
+      <div class="card"><h3>표준 채택 <span class="sub">매트릭스의 이 제도 행</span></h3>${adoptionRows.length ? `<table class="tbl"><tbody>${adoptionRows.map(r => `<tr><td>${esc(r.standard_family)}</td><td><b>${esc(r.form)}</b> ${badge(r.confidence)}</td></tr>`).join('')}</tbody></table><p class="tiny" style="margin-top:8px"><a href="#/adoption">매트릭스 전체 보기 →</a></p>` : (i.mine ? `<p class="small">${esc(i.standards)} → <b>${esc(DATA.userRows[+i.id.slice(4)].form)}</b></p>` : '<p class="muted small">해당 없음</p>')}</div>
+      <div class="card"><h3>관련 이해관계자</h3>${related.length ? `<div class="chips">${related.map(s => `<a class="chip" href="#/stakeholders" data-tip="${esc(s.role)}">${esc(s.name)}</a>`).join('')}</div>` : '<p class="muted small">입력 없음</p>'}</div>
+    </div>
+  </div>`;
 }
 
 /* =========================================================
