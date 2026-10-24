@@ -177,8 +177,10 @@ seminar-team01/
 
 ### 설명영상
 
-- 영상 링크: https://drive.google.com/file/d/17CzUQL5J1jQz-M4hDWwEQdSPBJOi5R3j/view?usp=sharing (5분 25초, 팀원 A 녹화) — 대시보드로 어떤 연구를 어떻게 했고 무엇이 나왔는지 설명. 화면 녹화·음성·자막은 docs의 대본으로 자동 제작
-- 대본과 촬영 순서: [docs/설명영상_대본_대시보드.md](docs/설명영상_대본_대시보드.md)
+- 영상 링크(GitHub 릴리스): https://github.com/suyoungi/seminar-team01/releases/download/video-v2/dashboard_video.mp4 (4분 13초, 1600×900) · [저용량 720p](https://github.com/suyoungi/seminar-team01/releases/download/video-v2/dashboard_video_720p.mp4) · [자막 srt](https://github.com/suyoungi/seminar-team01/releases/download/video-v2/dashboard_video.srt) · [릴리스 페이지](https://github.com/suyoungi/seminar-team01/releases/tag/video-v2)
+- 영상 링크(구글 드라이브, 720p): https://drive.google.com/file/d/1JJLJ8-D5pFmnCCRwj9HSIas0J4oF4uNZ/view?usp=sharing
+- 내용: 팀원 A 개인 설명영상. ① 왜 만들었나 ② 무엇을 보여 주나 ③ 자료를 넣고 결과 보기 ④ 내 연구에 쓰는 법 ⑤ 내가 고친 부분 ⑥ 아쉬운 점
+- 대본: [docs/설명영상_대본_대시보드.md](docs/설명영상_대본_대시보드.md) (장면별 화면 지시 포함). 화면 녹화·음성·자막은 이 대본에서 자동 제작
 
 ### 역할 분담
 
