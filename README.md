@@ -3,6 +3,8 @@
 > 국방 소프트웨어에 적용되는 여러 보안·품질 시험 제도의 요구 항목을 하나의 기준(CWE)으로 맞춰 비교하고, 한 번의 시험 결과를 여러 제도에서 함께 인정받는 방안을 제안하는 팀 프로젝트입니다.
 
 - 기획안 전문: [기획안.md](기획안.md)
+- 제도 분석 브리핑(팀원 A 초안): https://suyoungi.github.io/seminar-team01/briefing.html
+- 연구 배경·목적·필요성(출처 포함 초안): [docs/01_연구배경.md](docs/01_연구배경.md)
 - 팀 페이지: https://suyoungi.github.io/seminar-team01/
 - 신흥기술세미나 팀과제 (과학기술정책학과 1인 + 컴퓨터소프트웨어학과 1인)
 
@@ -79,11 +81,12 @@ seminar-team01/
 ├── README.md          이 문서
 ├── 기획안.md           기획안 전문
 ├── index.html         팀 페이지 (GitHub Pages)
+├── briefing.html      제도 분석 브리핑 (팀원 A 작업분)
 ├── data/              CWE 목록, 제도별 매핑표 (CSV)
 ├── analysis/          겹침 분석 스크립트 (overlap.py 등)
 ├── static-analysis/   Juliet 케이스 선별, 도구 실행 스크립트, 결과표
 ├── figures/           벤 다이어그램, 히트맵
-└── docs/              제도 카드, 해외 사례 비교표, 회의록
+└── docs/              연구 배경(01_연구배경.md), 제도 카드, 해외 사례 비교표, 회의록
 ```
 
 폴더는 작업이 시작되는 단계에 맞춰 하나씩 만듭니다. 데이터와 코드는 누구나 같은 결과를 다시 얻을 수 있도록 실행 방법을 README에 적습니다.
@@ -116,7 +119,7 @@ seminar-team01/
 | 구분 | 주소 |
 |---|---|
 | 팀 저장소 | https://suyoungi.github.io/seminar-team01/ |
-| suyoungi | (fork 후 Pages를 켜면 https://suyoungi.github.io/seminar-team01/) |
+| suyoungi | 팀 저장소와 같음 (저장소 주인이라 fork하지 않음) |
 | minkwanchoi | (fork 후 Pages를 켜면 https://minkwanchoi.github.io/seminar-team01/) |
 
 ### 설명영상
