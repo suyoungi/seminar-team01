@@ -216,6 +216,11 @@ table.mx { border-collapse: separate; border-spacing: 3px; width: 100%; font-siz
 ul.bul { margin: 0; padding-left: 18px; font-size: .9rem; }
 ul.bul li { margin: 6px 0; }
 
+/* 겹침 탐색기 */
+select.sel { font: inherit; font-size: .9rem; padding: 7px 10px; border: 1px solid var(--line-2); border-radius: 9px; background: var(--surface); color: var(--ink); }
+.hm rect { transition: filter .1s; }
+.hm:hover rect { filter: brightness(1.08); stroke: var(--ink); stroke-width: 1.5; }
+
 /* 빈 화면 안내 */
 .placeholder { border: 1px dashed var(--line-2); border-radius: var(--radius); padding: 36px; text-align: center; color: var(--ink-3); }
 .err { border: 1px solid var(--critical); background: var(--critical-bg); color: var(--critical); border-radius: 12px; padding: 14px 16px; }
@@ -285,7 +290,10 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; }
    ========================================================= */
 const DATA = {};
 const B_PAGES = 'https://minkwanchoi.github.io/seminar-team01/';
-const OVERLAP_FILES = ['overlap_summary.csv', 'overlap_pairs.csv', 'overlap_common.csv', 'overlap_reference.csv'];
+const OVERLAP_FILES = ['overlap_summary.csv', 'overlap_pairs.csv', 'overlap_common.csv', 'overlap_reference.csv', 'overlap_matrix.csv'];
+const DOMESTIC_SETS = ['매뉴얼·C (CWE-658)', '매뉴얼·C++ (CWE-659)', '매뉴얼·Java (CWE-660)', '매뉴얼 보안약점 44', '행안부 49'];
+const SET_SHORT = { '매뉴얼·C (CWE-658)': '매뉴얼 C 뷰', '매뉴얼·C++ (CWE-659)': '매뉴얼 C++ 뷰', '매뉴얼·Java (CWE-660)': '매뉴얼 Java 뷰', '매뉴얼 보안약점 44': '매뉴얼 보안약점 44', '행안부 49': '행안부 49', 'CWE Top 25 (2025)': 'CWE Top 25 (2025)', 'SEI CERT C·C++': 'SEI CERT C·C++', 'CISQ 품질 측정': 'CISQ 품질 측정' };
+const SET_PLAIN = { '매뉴얼·C (CWE-658)': '매뉴얼이 C 언어 코드에 적용하는 CWE 뷰(언어별 약점 목록)', '매뉴얼·C++ (CWE-659)': '매뉴얼이 C++ 코드에 적용하는 CWE 뷰', '매뉴얼·Java (CWE-660)': '매뉴얼이 Java 코드에 적용하는 CWE 뷰', '매뉴얼 보안약점 44': '매뉴얼 부록 7-10~7-11의 보안약점 점검 목록 44개', '행안부 49': '행안부 개발보안 가이드 구현단계 49개 항목을 CWE로 푼 61개' };
 const VIEWS = [
   { id: 'home',         tab: '홈',           title: '문제 한 장' },
   { id: 'institutions', tab: '제도 지도',     title: '제도 9개 지도' },
@@ -767,6 +775,139 @@ RENDER.adoption = (sec) => {
       ${r.mine ? '' : `<p class="tiny" style="margin-top:8px"><a href="#/institutions/${esc(r.institution_id)}">이 제도의 카드 보기 →</a></p>`}`;
     d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }));
+};
+
+/* =========================================================
+   겹침 탐색기: 히트맵 · 두 목록 고르기 · 참고 기준 덮는 비율 · 공통 항목 종류
+   ========================================================= */
+const ovState = { a: '매뉴얼 보안약점 44', b: '행안부 49' };
+function pairRow(a, b) {
+  const p = DATA.overlap.overlap_pairs;
+  return p.find(r => r.set_a === a && r.set_b === b) || (() => { const r = p.find(x => x.set_a === b && x.set_b === a); return r && { ...r, set_a: a, set_b: b, size_a: r.size_b, size_b: r.size_a, only_a: r.only_b, only_b: r.only_a }; })();
+}
+function cweInfo(id) { return (DATA.overlap.overlap_matrix || []).find(r => r.cwe_id === String(id)); }
+function seqColor(v) { // 0~1 → 파랑 순차 램프
+  const steps = ['--q100', '--q150', '--q200', '--q250', '--q300', '--q350', '--q400', '--q450', '--q500', '--q550', '--q600', '--q650', '--q700'];
+  return `var(${steps[Math.min(steps.length - 1, Math.round(v * (steps.length - 1)))]})`;
+}
+
+RENDER.overlap = (sec) => {
+  const o = DATA.overlap, ov = DATA.ov;
+  if (!ov) { sec.innerHTML = viewHead('3장 · 겹침 분석', '겹침 탐색기') + `<div class="err">B의 겹침 CSV(data/cwe/v4.20/overlap_*.csv)를 읽지 못했습니다. 팀 저장소에 파일이 들어오거나 B의 배포 페이지에 접속할 수 있어야 합니다.</div>`; return; }
+  const sets = DOMESTIC_SETS;
+  const sizes = Object.fromEntries(o.overlap_summary.map(r => [r.set, +r.size]));
+  const pr = pairRow(ovState.a, ovState.b);
+  const shared = pr.shared_cwes.split(';').filter(Boolean);
+  const cat = {}; shared.forEach(id => { const c = cweInfo(id); const k = c ? c.category_ko : '(분류 없음)'; cat[k] = (cat[k] || 0) + 1; });
+  const catItems = Object.entries(cat).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ label: k, value: v }));
+  const refs = o.overlap_reference;
+
+  // 히트맵 5×5
+  const N = sets.length, cw = 118, ch = 56, lw = 150, th = 60, W = lw + N * cw + 10, H = th + N * ch + 10;
+  const heat = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="국내 목록 5개 쌍별 Jaccard 유사도 히트맵">
+    ${sets.map((s, j) => `<text x="${lw + j * cw + cw / 2}" y="${th - 30}" text-anchor="middle" style="font-size:11.5px" class="lbl">${esc(SET_SHORT[s].replace('매뉴얼 ', ''))}</text><text x="${lw + j * cw + cw / 2}" y="${th - 14}" text-anchor="middle" style="font-size:10.5px">${sizes[s]}개</text>`).join('')}
+    ${sets.map((a, i) => `<text x="${lw - 10}" y="${th + i * ch + ch / 2 + 4}" text-anchor="end" style="font-size:11.5px" class="lbl">${esc(SET_SHORT[a])}</text>` + sets.map((b, j) => {
+      if (i === j) return `<rect x="${lw + j * cw + 2}" y="${th + i * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="6" fill="var(--surface-2)"/><text x="${lw + j * cw + cw / 2}" y="${th + i * ch + ch / 2 + 4}" text-anchor="middle" style="font-size:11px">같은 목록</text>`;
+      const r = pairRow(a, b), v = +r.jaccard, dark = v > 0.35;
+      return `<g class="hm" data-a="${esc(a)}" data-b="${esc(b)}" data-tip="<b>${esc(SET_SHORT[a])} × ${esc(SET_SHORT[b])}</b><br>공통 ${r.intersection}개 / 합집합 ${r.union}개<br>Jaccard ${fmt(v, 2)} · ${esc(SET_SHORT[a])}에만 ${r.only_a}개, ${esc(SET_SHORT[b])}에만 ${r.only_b}개<br>누르면 아래에서 자세히">
+        <rect x="${lw + j * cw + 2}" y="${th + i * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="6" fill="${seqColor(v)}" style="cursor:pointer"/>
+        <text x="${lw + j * cw + cw / 2}" y="${th + i * ch + ch / 2 - 2}" text-anchor="middle" style="font-size:14px;font-weight:700;fill:${dark ? '#fff' : 'var(--ink)'}">${fmt(v, 2)}</text>
+        <text x="${lw + j * cw + cw / 2}" y="${th + i * ch + ch / 2 + 14}" text-anchor="middle" style="font-size:10.5px;fill:${dark ? '#fff' : 'var(--ink-2)'}">공통 ${r.intersection}</text></g>`;
+    }).join('')).join('')}
+  </svg>`;
+
+  sec.innerHTML = viewHead('3장 · 겹침 분석', '겹침 탐색기',
+    '제도마다 다른 말로 적힌 약점 목록을 국제 약점 번호(CWE)로 바꿔 같은 자로 쟀습니다. 계산은 팀원 B가 했고(이슈 #12), 이 화면은 그 결과 파일을 그대로 읽습니다. 기준 버전은 CWE 4.20입니다.',
+    '숫자 0.46처럼 보이는 값은 Jaccard 유사도로, 두 목록을 합친 전체 가운데 양쪽에 다 있는 것의 비율입니다. 0이면 전혀 안 겹치고 1이면 똑같은 목록입니다. 히트맵의 칸이 진할수록 많이 겹칩니다. 아래 "두 목록 고르기"에서 어떤 항목이 공통인지 하나씩 볼 수 있습니다.') + `
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="card kpi"><div class="label">매뉴얼 44 ↔ 행안부 49 공통</div><div class="value">${ov.common}<span class="unit">개</span></div><div class="plain">매뉴얼 44개의 ${ov.pct44}%, 행안부 CWE ${ov.size49}개의 ${ov.pct49}%</div><div class="src tiny">${badge('확인')} overlap_pairs.csv</div></div>
+    <div class="card kpi"><div class="label">두 목록의 Jaccard</div><div class="value">${fmt(ov.jaccard, 2)}</div><div class="plain">합집합 ${ov.union}개 가운데 ${ov.common}개가 양쪽에 있음</div><div class="src tiny">${badge('확인')} overlap_pairs.csv</div></div>
+    <div class="card kpi"><div class="label">다섯 목록 모두에 있는 약점</div><div class="value">${ov.five.length}<span class="unit">개</span></div><div class="plain">CWE-${ov.five.join(', ')} — 언어 뷰까지 합치면 공통은 이 셋뿐</div><div class="src tiny">${badge('확인')} overlap_common.csv</div></div>
+    <div class="card kpi"><div class="label">Top 25 가운데 국내 목록에 없는 것</div><div class="value">${ov.top25.missing.length}<span class="unit">개 / ${ov.top25.size}</span></div><div class="plain">국내 다섯 목록이 덮는 비율 ${fmt(ov.top25.pct)}%</div><div class="src tiny">${badge('확인')} overlap_reference.csv</div></div>
+  </div>
+
+  <div class="card">
+    <h3>국내 목록 5개의 쌍별 닮은 정도 <span class="sub">Jaccard 유사도 · 칸을 누르면 아래에서 자세히</span></h3>
+    <figure>${heat}<figcaption>그림 4. 매뉴얼의 C 뷰와 C++ 뷰는 거의 같은 목록(0.79)이고, 매뉴얼 보안약점 44와 행안부 49가 그다음으로 닮았습니다(0.46). 언어 뷰와 행안부 49는 거의 안 겹칩니다(0.06~0.07). 즉 "두 제도가 겹친다"는 말은 44 ↔ 49 사이에서만 성립합니다.</figcaption></figure>
+  </div>
+
+  <hr class="sep">
+  <div class="card">
+    <h3>두 목록 고르기 <span class="sub">공통 항목과 한쪽에만 있는 항목</span></h3>
+    <div class="toolbar">
+      <select id="ovA" class="sel">${sets.map(s => `<option ${s === ovState.a ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>
+      <span class="muted">와</span>
+      <select id="ovB" class="sel">${sets.map(s => `<option ${s === ovState.b ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>
+      <span class="spacer"></span>
+      <button class="btn" id="ovExport">공통 항목 CSV</button>
+    </div>
+    <p class="small muted">${esc(SET_PLAIN[ovState.a])} · ${esc(SET_PLAIN[ovState.b])}</p>
+    ${ovState.a === ovState.b ? '<p class="note" style="margin-top:10px">같은 목록을 골랐습니다. 다른 목록을 고르세요.</p>' : `
+    <div class="grid g2" style="margin-top:12px">
+      <div>
+        ${SVG.hbar({ items: [
+          { label: SET_SHORT[ovState.a] + '에만', value: +pr.only_a, color: 'var(--q300)' },
+          { label: '양쪽 모두(공통)', value: +pr.intersection, color: 'var(--q600)' },
+          { label: SET_SHORT[ovState.b] + '에만', value: +pr.only_b, color: 'var(--q300)' },
+        ], labelW: 170, width: 520, unit: '개' })}
+        <p class="small muted" style="margin-top:6px">합집합 ${pr.union}개 · Jaccard ${fmt(+pr.jaccard, 3)} · ${esc(SET_SHORT[ovState.a])} ${pr.size_a}개, ${esc(SET_SHORT[ovState.b])} ${pr.size_b}개</p>
+      </div>
+      <div>
+        <h4 class="small" style="margin-bottom:6px">공통 항목은 어떤 종류의 약점인가 <span class="tiny">CWE 범주(category_ko) 기준</span></h4>
+        ${catItems.length ? SVG.hbar({ items: catItems.slice(0, 8), labelW: 150, width: 520, barH: 18, gap: 6, unit: '개' }) : '<p class="muted small">공통 항목이 없습니다.</p>'}
+        ${catItems.length > 8 ? `<p class="tiny">그 밖에 ${catItems.slice(8).map(c => `${c.label} ${c.value}`).join(', ')}</p>` : ''}
+      </div>
+    </div>
+    <details style="margin-top:12px"><summary class="small" style="cursor:pointer;color:var(--accent);font-weight:600">공통 ${shared.length}개 항목 목록 펼치기</summary>
+      <div class="tbl-wrap" style="margin-top:8px"><table class="tbl"><thead><tr><th>CWE</th><th>이름(영문, MITRE)</th><th>범주</th><th>들어 있는 국내 목록 수</th></tr></thead><tbody>
+      ${shared.map(id => { const c = cweInfo(id); return `<tr><td class="num">CWE-${esc(id)}</td><td>${esc(c ? c.name : '')}</td><td>${esc(c ? c.category_ko : '')}</td><td class="num">${c ? DOMESTIC_SETS.filter(s => c[s] === '1').length : ''}</td></tr>`; }).join('')}
+      </tbody></table></div></details>`}
+  </div>
+
+  <hr class="sep">
+  <div class="grid g2">
+    <div class="card">
+      <h3>해외 참고 목록을 국내 목록이 덮는 비율 <span class="sub">겹침 계산에는 넣지 않고 참고로만</span></h3>
+      ${SVG.hbar({ items: refs.map(r => ({ label: SET_SHORT[r.reference] || r.reference, value: +r.pct_domestic, tip: `${r.reference} ${r.size}개 가운데 국내 다섯 목록 어디에라도 있는 것 ${r.covered_domestic}개(${r.pct_domestic}%). 매뉴얼만 ${r.pct_manual}%, 행안부만 ${r.pct_mois}%` })), max: 100, labelW: 150, width: 520, unit: '%' })}
+      <figcaption>그림 5. 최신 위협 순위(Top 25)는 68%를 덮고, 안전 코딩 표준(SEI CERT)·품질 측정(CISQ)은 절반 안팎입니다. 빠진 항목은 "국내 목록이 놓치는 것"의 후보이며, 제언 ③(현행화 주기)의 근거입니다. 막대에 마우스를 올리면 매뉴얼·행안부 각각의 비율이 보입니다.</figcaption>
+      <p class="small" style="margin-top:8px"><b>Top 25에서 빠진 ${ov.top25.missing.length}개:</b> ${ov.top25.missing.map(id => { const c = cweInfo(id); return `<span data-tip="${esc(c ? c.name : '')}">CWE-${id}</span>`; }).join(', ')}</p>
+    </div>
+    <div class="card">
+      <h3>목록 크기와 고유 항목 <span class="sub">그 목록에만 있는 항목 수</span></h3>
+      ${SVG.hbar({ items: o.overlap_summary.map(r => ({ label: SET_SHORT[r.set], value: +r.size, color: 'var(--q300)', tip: `${r.set}: 전체 ${r.size}개, 이 목록에만 있는 것 ${r.unique}개` })), labelW: 150, width: 520, unit: '개' })}
+      <figcaption>그림 6. Java 뷰는 84개 가운데 52개가 Java에만 있는 항목이고, 매뉴얼 보안약점 44는 5개만 고유합니다. 즉 44개 목록은 대부분 다른 목록과 겹치는 "공통 성격"의 목록입니다.</figcaption>
+      <div class="note" style="margin-top:12px">내 CWE 목록을 넣어 이 다섯 목록과 비교하려면 B의 연구도구 <a href="${B_PAGES}overlap.html" target="_blank" rel="noopener">overlap.html</a>을 쓰세요. 이 화면은 B의 결과 파일을 읽기만 합니다(${esc(DATA.overlapSource)}에서 읽음).</div>
+    </div>
+  </div>`;
+
+  $('#ovA').addEventListener('change', e => { ovState.a = e.target.value; RENDER.overlap(sec); });
+  $('#ovB').addEventListener('change', e => { ovState.b = e.target.value; RENDER.overlap(sec); });
+  $$('.hm', sec).forEach(g => g.addEventListener('click', () => { ovState.a = g.dataset.a; ovState.b = g.dataset.b; RENDER.overlap(sec); $('#ovA').scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
+  $('#ovExport').addEventListener('click', () => download(`공통항목_${SET_SHORT[ovState.a]}_${SET_SHORT[ovState.b]}.csv`, toCSV(shared.map(id => { const c = cweInfo(id) || {}; return { cwe: 'CWE-' + id, name: c.name, category_ko: c.category_ko }; }), ['cwe', 'name', 'category_ko']), 'text/csv'));
+};
+
+/* =========================================================
+   실증 결과: B의 RQ3 자리 (결과가 오면 CSV를 읽어 채움)
+   ========================================================= */
+RENDER.evidence = (sec) => {
+  sec.innerHTML = viewHead('4장 · 정적분석 실증', '정적분석 실증 결과',
+    '"정적분석 도구를 한 번 돌린 결과가 여러 제도의 요구를 동시에 채울 수 있는가"(연구질문 RQ3)를 팀원 B가 공개 시험 코드(NIST Juliet)와 공개 도구로 실험합니다. 결과가 저장소에 들어오면 이 화면이 그 파일을 읽어 채워집니다.',
+    '지금은 결과가 없어 빈 자리만 있습니다. 숫자가 없는 칸을 추정으로 채우지 않았습니다. 채워질 그래프 두 개는 "도구별로 몇 개 약점을 잡았나"와 "한 번 분석으로 제도별 요구를 몇 %나 채우나"입니다.') + `
+  <div class="grid g3" style="margin-bottom:18px">
+    <div class="card kpi"><div class="label">진행 상태</div><div class="value" style="font-size:1.4rem">${badge('대기', '대기 중')}</div><div class="plain">B5 Juliet 케이스 선별·도구 환경(이슈 #14), B6 도구별 집계·오탐 표본(이슈 #15)</div></div>
+    <div class="card kpi"><div class="label">실험 범위</div><div class="value" style="font-size:1.4rem">C/C++</div><div class="plain">RQ2(목록 비교)는 C·C++·Java 세 뷰를 모두 보지만, 실증은 공개 도구 지원이 가장 넓은 C/C++로 한정(기획안 v0.2 3장)</div></div>
+    <div class="card kpi"><div class="label">결과가 쓰이는 곳</div><div class="value" style="font-size:1.4rem">제언 ②·④</div><div class="plain">상호인정의 '비용 대비 효과'와 오탐 사유서 표준화의 근거. 지금은 그 칸이 "대기"</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h3>도구별 탐지 수 <span class="sub">채워질 자리</span></h3><div class="placeholder">도구 × CWE 탐지 표. B6 결과 CSV(<code>data/evidence/</code>, 예정)가 들어오면 막대 그래프로 그립니다.</div></div>
+    <div class="card"><h3>1회 분석 → 제도별 충족률 <span class="sub">채워질 자리</span></h3><div class="placeholder">정적분석 한 번의 결과가 매뉴얼 44·행안부 49·언어 뷰의 요구를 각각 몇 %나 채우는지. B6 결과가 들어오면 막대 그래프로 그립니다.</div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>이 실험이 답하려는 것</h3>
+    <ul class="bul">
+      <li><b>같은 코드를 한 번 분석한 결과</b>가 두 제도의 목록을 얼마나 동시에 채우는지. 겹침 탐색기의 공통 33개가 "목록상 겹침"이라면, 이것은 "실제 도구 결과상 겹침"입니다.</li>
+      <li><b>오탐(거짓경보)</b>이 어느 정도 나오는지. 제언 ④(오탐 사유서 표준화)의 근거가 됩니다.</li>
+      <li>결과를 "도구 성능 평가"가 아니라 <b>"복수 제도 충족도 예시"</b>로만 해석합니다(기획안 8장 위험 표).</li>
+    </ul></div>`;
 };
 
 /* =========================================================
