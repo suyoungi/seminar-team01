@@ -6,18 +6,38 @@
   <title>seminar-team01</title>
   <style>
     body { font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-           max-width: 720px; margin: 48px auto; padding: 0 16px; line-height: 1.6; color: #1f2937; }
+           max-width: 760px; margin: 48px auto; padding: 0 16px; line-height: 1.6; color: #1f2937; }
     h1 { color: #1e3a8a; }
     .box { background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px 16px; border-radius: 6px; }
+    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+    .tool { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; }
+    .tool h2 { font-size: 1.05rem; margin: 0 0 6px; }
+    .tool p { margin: 0 0 10px; font-size: .92rem; color: #4b5563; }
+    .tool a.btn { display: inline-block; background: #2563eb; color: #fff; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; }
+    .tool a.btn.alt { background: #0d366b; }
+    @media (max-width: 600px) { .tools { grid-template-columns: 1fr; } }
+    small { color: #6b7280; }
   </style>
 </head>
 <body>
   <h1>seminar-team01</h1>
-  <p class="box">국방 SW 보안·품질 시험 제도의 겹침을 분석하고 상호인정 방안을 제안하는 팀 프로젝트입니다.</p>
+  <p class="box">국방 SW 보안·품질 시험 제도의 겹침을 분석하고 상호인정 방안을 제안하는 팀 프로젝트입니다. 도구는 두 개이며 서로 링크로 오갑니다.</p>
+  <div class="tools">
+    <div class="tool">
+      <h2>제도·정책 대시보드 <small>팀원 A</small></h2>
+      <p>제도 9개 카드, 표준 채택 매트릭스, 겹침 탐색기, 해외 사례, 제언 평가판, 용어 풀이, 데이터에 물어보기(AI 없음). 보고서 인쇄 보기 포함.</p>
+      <a class="btn" href="dashboard.html">대시보드 열기</a>
+    </div>
+    <div class="tool">
+      <h2>CWE 겹침 연구도구 <small>팀원 B</small></h2>
+      <p>국내 목록 5개의 겹침 히트맵, 내 CWE 목록 비교, CWE 파일 불러오기. 대시보드의 겹침 숫자는 이 도구의 결과 파일을 읽습니다.</p>
+      <a class="btn alt" href="https://minkwanchoi.github.io/seminar-team01/overlap.html">연구도구 열기</a>
+    </div>
+  </div>
   <ul>
-    <li><a href="briefing.html">제도 분석 브리핑 (팀원 A 작업분 초안)</a></li>
+    <li><a href="briefing.html">제도 분석 브리핑 (팀원 A 작업분 초안, 문서형)</a></li>
     <li><a href="https://github.com/suyoungi/seminar-team01">저장소와 기획안</a></li>
   </ul>
-  <p style="color:#6b7280;font-size:.9rem">이 페이지는 연구도구가 완성되면 그 화면으로 바뀝니다.</p>
+  <p><small>AI 활용 고지: 1차 수집·작성은 Claude Code, 원문 대조와 판단은 각 팀원. 자세한 내용은 각 PR 설명과 data/dashboard/README.md.</small></p>
 </body>
 </html>

@@ -233,6 +233,36 @@ table.cmx thead th { text-align: center; }
 .case .field { grid-template-columns: 96px 1fr; }
 .case .field .fv { font-size: .88rem; }
 
+/* 제언 평가판 */
+.prio { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 960px) { .prio { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .prio { grid-template-columns: 1fr; } }
+.prio-card { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; color: var(--ink); box-shadow: var(--shadow); }
+.prio-card:hover { text-decoration: none; border-color: var(--accent); }
+.prio-card .rank { font-size: .74rem; font-weight: 800; color: var(--accent); letter-spacing: .05em; }
+.prio-card .pn { font-weight: 700; margin: 4px 0; }
+.prio-card p { font-size: .86rem; color: var(--ink-2); margin-bottom: 8px; }
+.lv { display: inline-block; font-size: .76rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; font-style: normal; }
+.lv-good { background: var(--good-bg); color: var(--good); }
+.lv-mid { background: var(--warn-bg); color: #8a5a00; }
+.lv-bad { background: var(--serious-bg); color: #a7431e; }
+:root[data-theme="dark"] .lv-mid, :root:not([data-theme="light"]) .lv-mid { color: #f3c45a; }
+:root[data-theme="dark"] .lv-bad, :root:not([data-theme="light"]) .lv-bad { color: #f2a07e; }
+.prop-tbl tr.prow { cursor: pointer; }
+
+/* 출처·한계 */
+.band { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; background: var(--surface-2); }
+
+/* 용어 풀이 */
+.gloss h3 .sub { display: block; margin: 2px 0 0; }
+.gloss .analogy { background: var(--brand-soft); border-radius: 8px; padding: 6px 10px; margin: 6px 0; }
+
+/* 물어보기 */
+.ask-box { border-color: var(--accent); }
+.ans { margin-bottom: 12px; }
+.ans.best { border-color: var(--accent); border-width: 2px; }
+.ans h3 { margin-bottom: 8px; }
+
 /* 빈 화면 안내 */
 .placeholder { border: 1px dashed var(--line-2); border-radius: var(--radius); padding: 36px; text-align: center; color: var(--ink-3); }
 .err { border: 1px solid var(--critical); background: var(--critical-bg); color: var(--critical); border-radius: 12px; padding: 14px 16px; }
@@ -1002,6 +1032,161 @@ RENDER.stakeholders = (sec) => {
       ${list.map(s => `<tr><td><b>${esc(s.name)}</b></td><td><span class="owner" style="--c:${GROUP_SERIES[s.group]}">${esc(s.group)}</span></td><td>${esc(s.role)}</td><td>${esc(s.interest)}</td><td>${s.institutions.map(id => { const i = DATA.inst.institutions.find(x => x.id === id); return i ? `<a href="#/institutions/${id}">${esc(i.short)}</a>` : ''; }).filter(Boolean).join(', ')}</td></tr>`).join('')}
     </tbody></table></div>
   <div class="note" style="margin-top:14px">제언 ②(시험 결과 상호인정)는 결정 기관 세 곳(국방부·방위사업청·행정안전부)이 함께 움직이고 분쟁 조정 주체를 정해야 합니다. 어느 기관이 조정을 맡을지는 이 연구에서 정하지 않았습니다.</div>`;
+};
+
+/* =========================================================
+   제언 평가판: 우선순위 · 신호등 표 · 제언별 상세
+   ========================================================= */
+const LEVEL_CSS = { good: 'lv-good', mid: 'lv-mid', bad: 'lv-bad' };
+const propState = { open: null };
+RENDER.proposals = (sec, param) => {
+  const P = DATA.props, M = P._meta, ov = DATA.ov;
+  const order = M.priority_order.map(id => P.proposals.find(p => p.id === id));
+  if (param) propState.open = param;
+  const lv = (kind, level) => { const css = LEVEL_CSS[(M.levels[kind] || {})[level]] || ''; return `<span class="lv ${css}">${esc(level)}</span>`; };
+  const caseName = id => id ? (DATA.cases.cases.find(c => c.id === id) || {}).name : '—';
+  const detail = p => `<div class="card" style="margin-top:12px">
+    <h3>${esc(p.num)} ${esc(p.name)} <span class="sub">상세</span></h3>
+    <p class="plain-box" style="background:var(--brand-soft);color:var(--brand);border-radius:9px;padding:8px 12px;font-size:.92rem;margin-bottom:8px">${esc(p.plain)}</p>
+    <div class="field"><div class="fk">내용</div><div class="fv">${esc(p.content)}</div></div>
+    <div class="field"><div class="fk">법적 근거</div><div class="fv">${lv('legal', p.legal.level)} ${rich(p.legal.text)}</div></div>
+    <div class="field"><div class="fk">조정 기관</div><div class="fv">${lv('coord', p.coord.level)} ${esc(p.coord.agencies.join(' · '))} — ${esc(p.coord.text)}</div></div>
+    <div class="field"><div class="fk">비용 대비 효과</div><div class="fv">${badge(p.effect.evidence, '효과 근거: ' + p.effect.evidence)} ${rich(p.effect.text)}</div></div>
+    <div class="field"><div class="fk">근거 자료</div><div class="fv">${esc(p.evidence)}</div></div>
+    <div class="field"><div class="fk">이 순서에 둔 이유</div><div class="fv">${rich(p.why_rank)}</div></div>
+    ${p.case_link ? `<p class="tiny" style="margin-top:8px">관련 해외 사례: <a href="#/cases">${esc(caseName(p.case_link))}</a></p>` : ''}
+  </div>`;
+
+  sec.innerHTML = viewHead('6장 · 정책 제언', '정책 제언 평가판',
+    '앞의 분석(겹침 숫자, 인정 조항 지도, 해외 사례)에서 나온 제언 네 가지를 같은 기준 세 개로 평가하고 순서를 정했습니다. 순서는 2026-10-24에 팀원 A가 결정했습니다.',
+    '표의 색은 "하기 쉬운가"를 뜻합니다. 초록은 부처 안에서 문서만 고치면 되거나 한 기관이면 끝나는 것, 노랑은 규정을 새로 두거나 두 기관이 움직여야 하는 것, 주황은 세 기관과 분쟁 조정까지 필요한 것입니다. "효과 근거" 열의 <b>대기</b>는 B의 실증 결과가 나와야 채워진다는 뜻이고, 그 전에는 효과를 숫자로 말하지 않습니다. 행을 누르면 근거 전문이 아래에 펼쳐집니다.') + `
+  <div class="prio">
+    ${order.map((p, i) => `<a class="prio-card" href="#/proposals/${p.id}"><div class="rank">${i + 1}순위</div><div class="pn">${esc(p.num)} ${esc(p.name)}</div><p>${esc(p.plain)}</p><div class="tiny">${lv('legal', p.legal.level)} ${lv('coord', p.coord.level)} ${badge(p.effect.evidence, '효과 근거 ' + p.effect.evidence)}</div></a>`).join('')}
+  </div>
+
+  <div class="card tbl-wrap" style="margin-top:16px">
+    <div class="toolbar"><h3 style="margin:0">평가 표 <span class="sub">기준 세 개 · 제언평가_초안_2026-10-24</span></h3><span class="spacer"></span><button class="btn" id="propExport">내보내기(마크다운)</button></div>
+    <table class="tbl prop-tbl"><thead><tr><th>순위</th><th>제언</th>${M.criteria.map(c => `<th data-tip="${esc(c.question)} — ${esc(c.plain)}">${esc(c.label)}</th>`).join('')}<th>관련 해외 사례</th></tr></thead><tbody>
+      ${order.map((p, i) => `<tr class="prow" data-id="${p.id}"><td class="num">${i + 1}</td><td><b>${esc(p.num)} ${esc(p.name)}</b><div class="tiny">${esc(p.content)}</div></td><td>${lv('legal', p.legal.level)}</td><td>${lv('coord', p.coord.level)}<div class="tiny">${esc(p.coord.agencies.join(' · '))}</div></td><td>${badge(p.effect.evidence, p.effect.evidence === '확인' ? '근거 확인' : 'B 결과 대기')}${p.numbers.common ? `<div class="tiny">공통 ${p.numbers.common}개 · Jaccard ${fmt(p.numbers.jaccard, 2)}</div>` : ''}${p.numbers.top25_missing ? `<div class="tiny">Top 25 미포함 ${p.numbers.top25_missing} · 뷰 합집합 ${p.numbers.union_410}→${p.numbers.union_420}</div>` : ''}${p.numbers.recognition_clauses ? `<div class="tiny">인정 조항 ${p.numbers.recognition_clauses}곳 중 결과 수준 ${p.numbers.result_level_clauses}</div>` : ''}</td><td>${p.case_link ? `<a href="#/cases">${esc(caseName(p.case_link))}</a>` : '—'}</td></tr>`).join('')}
+    </tbody></table>
+    <div class="legend-row" style="margin-top:10px"><span><i class="lv lv-good">초록</i> 문서 개정 수준 · 1개 기관</span><span><i class="lv lv-mid">노랑</i> 규정 신설(훈령·지시) · 2개 기관</span><span><i class="lv lv-bad">주황</i> 3개 기관 + 분쟁 조정</span><span>${badge('추정')} 네 제언 모두 "법률 개정 불필요"라는 판단은 추정</span></div>
+  </div>
+  <div id="propDetail">${propState.open ? detail(P.proposals.find(p => p.id === propState.open) || order[0]) : ''}</div>
+
+  <hr class="sep">
+  <div class="grid g3">
+    ${M.criteria.map(c => `<div class="card"><h3>${esc(c.label)}</h3><p class="small"><b>묻는 것:</b> ${esc(c.question)}</p><p class="small muted" style="margin-top:6px">${esc(c.plain)}</p></div>`).join('')}
+  </div>
+  <div class="note" style="margin-top:14px">금액 단위의 비용·효과는 자료가 없어 추정하지 않았습니다. "효과"는 B의 겹침 숫자와 실증 충족률로, "비용"은 고쳐야 할 문서 수와 운영 장치(저장소·목록 관리)로만 적습니다.</div>`;
+
+  $$('.prow', sec).forEach(tr => tr.addEventListener('click', () => { propState.open = tr.dataset.id; $('#propDetail').innerHTML = detail(P.proposals.find(p => p.id === tr.dataset.id)); $('#propDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }));
+  $('#propExport').addEventListener('click', () => {
+    const md = ['| 순위 | 제언 | 법적 근거 | 조정 기관 | 효과 근거 | 관련 사례 |', '|---|---|---|---|---|---|', ...order.map((p, i) => `| ${i + 1} | ${p.num} ${p.name} | ${p.legal.level} | ${p.coord.level}(${p.coord.agencies.join('·')}) | ${p.effect.evidence} | ${caseName(p.case_link) || '—'} |`), '', `우선순위 결정: ${M.priority_decided}. 출처: ${M.source}`].join('\n');
+    download('제언_평가표.md', md, 'text/markdown');
+  });
+};
+
+/* =========================================================
+   출처·한계: 표기 규칙 · 자료 목록(docs/자료목록.md 2절) · 확인 못 한 것
+   ========================================================= */
+let SOURCES_CACHE = null;
+async function loadSources() {
+  if (SOURCES_CACHE) return SOURCES_CACHE;
+  try {
+    const md = await getText(encodeURI('docs/자료목록.md'));
+    const lines = md.split('\n'); const start = lines.findIndex(l => /^## 2\./.test(l));
+    const rows = []; let head = null;
+    for (let i = start + 1; i < lines.length; i++) {
+      const l = lines[i]; if (/^## /.test(l)) break; if (!l.startsWith('|')) continue;
+      const cells = l.split('|').slice(1, -1).map(c => c.trim()); if (/^-+$/.test(cells[0].replace(/\s/g, ''))) continue;
+      if (!head) { head = cells; continue; } rows.push(Object.fromEntries(head.map((h, k) => [h, cells[k] || ''])));
+    }
+    SOURCES_CACHE = rows;
+  } catch (e) { SOURCES_CACHE = []; }
+  return SOURCES_CACHE;
+}
+RENDER.sources = (sec) => {
+  const L = DATA.limits;
+  sec.innerHTML = viewHead('7장 · 출처와 한계', '출처와 한계',
+    '이 대시보드의 모든 문장에는 표기가 붙어 있습니다. 어디까지가 원문으로 확인한 사실이고 어디부터가 판단인지 구분하기 위해서입니다. 아래에 쓴 자료 전체와 확인하지 못한 것을 적었습니다.',
+    '먼저 표기 규칙을 보고, 자료 목록에서 각 자료의 상태(확인·2차·미확보)를 확인하세요. "확인하지 못한 것" 표는 보고서에 한계로 그대로 적을 항목입니다. 빈 칸을 추정으로 채우지 않은 것이 이 연구의 원칙입니다.') + `
+  <div class="card"><h3>표기 규칙</h3><div class="grid g3" style="gap:10px">${L.legend.map(l => `<div class="note">${badge(l.key)}<div class="small" style="margin-top:4px">${esc(l.plain)}</div></div>`).join('')}</div></div>
+  <div class="card" style="margin-top:16px"><h3>자료 목록 <span class="sub">docs/자료목록.md 2절을 그대로 읽음</span></h3><div id="srcBand"></div><div id="srcTable" class="tbl-wrap"><p class="muted small">읽는 중…</p></div></div>
+  <div class="card" style="margin-top:16px"><h3>확인하지 못한 것 <span class="sub">보고서에 한계로 적을 항목</span></h3>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>항목</th><th>왜 못 했나</th><th>영향</th><th>처리</th><th>상태</th></tr></thead><tbody>
+      ${L.limits.map(l => `<tr><td class="num">${l.id}</td><td><b>${esc(l.item)}</b></td><td>${esc(l.why)}</td><td>${esc(l.effect)}</td><td>${esc(l.handling)}</td><td>${badge(l.status)}</td></tr>`).join('')}
+    </tbody></table></div></div>
+  <div class="card" style="margin-top:16px"><h3>범위와 해석의 한계</h3><ul class="bul">${L.scope_notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul></div>
+  <p class="tiny" style="margin-top:12px">원문: <a href="docs/A2_국내제도_근거법령.md">docs/A2</a> · <a href="docs/A3_인정규정_지도.md">docs/A3</a> · <a href="docs/A4_해외상호인정사례.md">docs/A4</a> · <a href="docs/자료목록.md">docs/자료목록</a> · <a href="data/dashboard/README.md">data/dashboard/README</a></p>`;
+  loadSources().then(rows => {
+    const tbl = $('#srcTable'); if (!tbl) return;
+    if (!rows.length) { tbl.innerHTML = '<p class="muted small">docs/자료목록.md를 읽지 못했습니다.</p>'; return; }
+    const st = { '확인': 0, '2차': 0, '미확보': 0 }; rows.forEach(r => { const m = (r['상태'] || '').match(/\[(확인|2차|미확보)\]/); if (m) st[m[1]]++; });
+    const tot = rows.length, bandColor = { '확인': 'var(--good)', '2차': 'var(--warn)', '미확보': 'var(--critical)' };
+    $('#srcBand').innerHTML = `<div class="band">${Object.entries(st).map(([k, v]) => `<div style="flex:${v};background:${bandColor[k]}" data-tip="${k} ${v}건"></div>`).join('')}</div><div class="legend-row small" style="margin:6px 0 12px">${Object.entries(st).map(([k, v]) => `<span><i class="sw" style="background:${bandColor[k]}"></i>${k} ${v}건 (${Math.round(v / tot * 100)}%)</span>`).join('')}<span class="tiny">자료 ${tot}건</span></div>`;
+    const cols = Object.keys(rows[0]);
+    tbl.innerHTML = `<table class="tbl"><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(c => `<td class="small">${rich(r[c].replace(/\*\*/g, '')).replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  });
+};
+
+/* =========================================================
+   용어 풀이
+   ========================================================= */
+const glossState = { q: '' };
+RENDER.glossary = (sec) => {
+  const terms = DATA.gloss.terms.filter(t => !glossState.q || (t.term + t.full + t.plain + t.analogy + t.where).toLowerCase().includes(glossState.q.toLowerCase()));
+  sec.innerHTML = viewHead('부록 · 용어 풀이', '용어 풀이',
+    '이 연구를 처음 보는 사람을 위해 전문용어를 일상어로 풀었습니다. "정의"는 공식 문서의 뜻이고, "쉽게 말하면"은 이 연구 맥락의 비유입니다.',
+    '모르는 말이 나오면 여기서 찾으세요. 각 항목 끝의 "어디서 쓰이나"가 그 용어가 대시보드의 어느 화면과 이어지는지 알려 줍니다.') + `
+  <div class="toolbar"><input id="glossQ" class="sel" style="min-width:260px" placeholder="용어 검색 (예: Jaccard, 간주, 오탐)" value="${esc(glossState.q)}"><span class="tiny">${terms.length}개</span></div>
+  <div class="cards-grid">${terms.map(t => `<div class="card gloss"><h3>${esc(t.term)}<span class="sub">${esc(t.full)}</span></h3><p class="small"><b>정의</b> ${esc(t.plain)}</p><p class="small analogy"><b>쉽게 말하면</b> ${esc(t.analogy)}</p><p class="tiny"><b>어디서 쓰이나</b> ${esc(t.where)}</p></div>`).join('') || placeholder('맞는 용어가 없습니다.')}</div>`;
+  const inp = $('#glossQ'); inp.addEventListener('input', () => { glossState.q = inp.value; const pos = inp.selectionStart; RENDER.glossary(sec); const n = $('#glossQ'); n.focus(); n.setSelectionRange(pos, pos); });
+};
+
+/* =========================================================
+   데이터에 물어보기 (AI 없음): 낱말 맞춤 + 숫자 자리 채우기
+   ========================================================= */
+const askState = { q: '', history: [] };
+function fillAnswer(text) {
+  const ov = DATA.ov; if (!ov) return text.replace(/\{[a-z0-9_]+\}/g, '(숫자 읽지 못함)');
+  const v = { common_44_49: ov.common, union_44_49: ov.union, jaccard_44_49: fmt(ov.jaccard, 2), pct_44: ov.pct44, pct_49: ov.pct49, top25_covered: ov.top25.covered, top25_pct: fmt(ov.top25.pct), top25_missing: ov.top25.missing.length, top25_missing_list: ov.top25.missing.map(i => 'CWE-' + i).join(', '), five_common: ov.five.join(', ') };
+  return text.replace(/\{([a-z0-9_]+)\}/g, (m, k) => v[k] ?? m);
+}
+function matchQuestions(q) {
+  const s = q.toLowerCase().replace(/\s+/g, ' ').trim(); if (!s) return [];
+  return DATA.qa.questions.map(item => {
+    let score = 0; item.keywords.forEach(k => { if (s.includes(k.toLowerCase())) score += k.length >= 3 ? 2 : 1; });
+    if (s.includes(item.q.toLowerCase().slice(0, 8))) score += 3;
+    return { item, score };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+}
+function answerCard(item, rank) {
+  return `<div class="card ans ${rank === 0 ? 'best' : ''}">
+    <div class="tiny">${rank === 0 ? '가장 가까운 답' : `다른 후보 ${rank}`}</div>
+    <h3>${esc(item.q)}</h3>
+    <p>${esc(fillAnswer(item.answer))}</p>
+    ${item.caveat ? `<div class="note" style="margin-top:10px"><b>주의</b> ${esc(item.caveat)}</div>` : ''}
+    <div class="tiny" style="margin-top:10px">${badge(item.status.split(' ')[0], item.status)} 근거: ${esc(item.source)}${item.goto ? ` · <a href="#/${item.goto}">관련 화면 보기 →</a>` : ''}</div>
+  </div>`;
+}
+RENDER.ask = (sec) => {
+  const Q = DATA.qa;
+  const results = matchQuestions(askState.q);
+  sec.innerHTML = viewHead('물어보기', '데이터에 물어보기',
+    '궁금한 것을 한국어 문장으로 적으면, 미리 준비한 질문·답 가운데 낱말이 가장 많이 겹치는 답을 보여 주고 숫자 자리는 B의 겹침 데이터에서 계산해 채웁니다. 답마다 근거 문서와 확인 수준, 주의할 점이 붙습니다.',
+    `이 기능은 <b>AI가 아닙니다</b>. 수업 조건(도구 안 AI 없음, API 키 없음, 서버 없음)에 따라 준비된 답 ${Q.questions.length}개 안에서만 답합니다. 목록에 없는 질문에는 "답이 없다"고 말합니다. 답이 "추정"이면 자료 없이 세운 판단이니 원문을 확인하세요.`) + `
+  <div class="card ask-box">
+    <div class="toolbar" style="margin:0"><input id="askQ" class="sel" style="flex:1;min-width:240px;font-size:1rem;padding:11px 14px" placeholder="예: 두 제도는 얼마나 겹치나요?" value="${esc(askState.q)}"><button class="btn primary" id="askGo">질문하기</button>${askState.history.length ? `<button class="btn" id="askExport">답 내보내기(md)</button>` : ''}</div>
+    <div class="chips" style="margin-top:12px" id="askChips">${Q.questions.map(q => `<button class="chip" data-q="${esc(q.q)}">${esc(q.q)}</button>`).join('')}</div>
+  </div>
+  <div id="askOut" style="margin-top:16px">
+    ${askState.q ? (results.length ? results.map((r, i) => answerCard(r.item, i)).join('') : `<div class="card"><p>${esc(Q._meta.fallback)}</p></div>`) : ''}
+  </div>`;
+  const go = () => { askState.q = $('#askQ').value; const m = matchQuestions(askState.q); if (askState.q.trim()) askState.history.push({ q: askState.q, a: m.length ? fillAnswer(m[0].item.answer) : Q._meta.fallback, src: m.length ? m[0].item.source : '' }); RENDER.ask(sec); $('#askOut').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  $('#askGo').addEventListener('click', go);
+  $('#askQ').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  $('#askChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { $('#askQ').value = b.dataset.q; go(); } });
+  const ex = $('#askExport'); if (ex) ex.addEventListener('click', () => download('물어보기_기록.md', askState.history.map(h => `## ${h.q}\n\n${h.a}\n\n근거: ${h.src}\n`).join('\n'), 'text/markdown'));
 };
 
 /* =========================================================
