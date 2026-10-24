@@ -122,7 +122,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
 /* 표 */
 table.tbl { width: 100%; border-collapse: collapse; font-size: .9rem; }
 .tbl th, .tbl td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-.tbl th { font-size: .78rem; color: var(--ink-3); font-weight: 700; letter-spacing: .03em; background: var(--surface-2); position: sticky; top: 60px; }
+.tbl th { font-size: .78rem; color: var(--ink-3); font-weight: 700; letter-spacing: .03em; background: var(--surface-2); }
 .tbl tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
 .tbl-wrap { overflow-x: auto; }
 
@@ -220,6 +220,18 @@ ul.bul li { margin: 6px 0; }
 select.sel { font: inherit; font-size: .9rem; padding: 7px 10px; border: 1px solid var(--line-2); border-radius: 9px; background: var(--surface); color: var(--ink); }
 .hm rect { transition: filter .1s; }
 .hm:hover rect { filter: brightness(1.08); stroke: var(--ink); stroke-width: 1.5; }
+
+/* 해외 사례 */
+table.cmx .mx-cell { cursor: default; font-size: .82rem; font-weight: 700; height: 44px; }
+table.cmx .mx-cell.yes { background: var(--q550); color: #fff; }
+table.cmx .mx-cell.no { background: var(--surface-2); color: var(--ink-2); font-weight: 500; }
+table.cmx .mx-cell.rule { background: var(--s6); color: #fff; }
+table.cmx .mx-cell.none { background: var(--critical-bg); color: var(--critical); }
+table.cmx thead th { text-align: center; }
+.case .eyebrow { font-size: .72rem; color: var(--ink-3); font-weight: 600; }
+.case .plain-box { background: var(--brand-soft); color: var(--brand); border-radius: 9px; padding: 8px 12px; font-size: .9rem; margin: 8px 0 4px; }
+.case .field { grid-template-columns: 96px 1fr; }
+.case .field .fv { font-size: .88rem; }
 
 /* 빈 화면 안내 */
 .placeholder { border: 1px dashed var(--line-2); border-radius: var(--radius); padding: 36px; text-align: center; color: var(--ink-3); }
@@ -908,6 +920,88 @@ RENDER.evidence = (sec) => {
       <li><b>오탐(거짓경보)</b>이 어느 정도 나오는지. 제언 ④(오탐 사유서 표준화)의 근거가 됩니다.</li>
       <li>결과를 "도구 성능 평가"가 아니라 <b>"복수 제도 충족도 예시"</b>로만 해석합니다(기획안 8장 위험 표).</li>
     </ul></div>`;
+};
+
+/* =========================================================
+   해외 사례: 통일한 것 격자 · 사례 카드 · 규정 전후 비교 · 국내로 옮길 것
+   ========================================================= */
+RENDER.cases = (sec) => {
+  const C = DATA.cases, axes = C._meta.axes;
+  const axisKeys = ['criteria', 'method', 'tool'];
+  const grid = `<table class="mx cmx"><thead><tr><th class="mx-rowh"></th>${axisKeys.map(k => `<th>${esc(axes[k])}</th>`).join('')}<th>${esc(axes.rule)}</th></tr></thead><tbody>
+    ${C.cases.map(c => `<tr><th class="mx-rowh">${esc(c.name)}</th>${axisKeys.map(k => `<td class="mx-cell ${c.unified[k] ? 'yes' : 'no'}" data-tip="<b>${esc(c.name)} · ${esc(axes[k])}</b><br>${esc(c.unified_detail[k])}">${c.unified[k] ? '통일함' : '통일 대상 아님'}</td>`).join('')}<td class="mx-cell rule" data-tip="${esc(c.rule)}">있음</td></tr>`).join('')}
+    <tr><th class="mx-rowh">국내 제도 사이(현재)</th><td class="mx-cell no" data-tip="①②가 모두 CWE를 참조하지만 선정 목록이 다름">일부(CWE 참조)</td><td class="mx-cell no">제도별 절차</td><td class="mx-cell no" data-tip="행안부 지침 제53조④가 CC 인증 등 도구를 인정. 매뉴얼은 CC 인증 도구를 보안성 시험 도구로 씀">도구 인정 조항만</td><td class="mx-cell none" data-tip="인증서·도구·심사 생략 조항 17곳. 시험 결과 수준은 0곳(docs/A3)">결과 수준 없음</td></tr>
+  </tbody></table>`;
+
+  sec.innerHTML = viewHead('5장 · 해외 사례', '해외 상호인정 사례',
+    '한 번 받은 시험·인증 결과를 다른 나라나 다른 제도가 그대로 인정하는 세 가지 방식을 견줬습니다. 세 사례 모두 원문(약정문·훈령·규제기관 문서)을 읽고 확인한 것이며, 원문을 못 본 부분은 2차 자료로 표시했습니다.',
+    '먼저 아래 격자를 보세요. 세 사례가 "기준·방법·도구 가운데 무엇을 먼저 통일했나"와 "결과를 인정한다고 적은 별도 규정이 있나"를 표시한 것입니다. 핵심은 마지막 열입니다. 같은 기준을 쓰는 것만으로는 인정이 생기지 않았고, 별도 규정이 생긴 뒤에야 결과가 인정되었습니다. 맨 아래 행이 우리나라의 현재 상태입니다.') + `
+  <div class="card"><h3>세 사례가 무엇을 먼저 통일했나 <span class="sub">칸에 마우스를 올리면 근거</span></h3>
+    <div class="tbl-wrap">${grid}</div>
+    <figcaption>그림 7. CCRA는 기준(목록)을, 미국 RMF는 기준과 절차를, DO-330은 도구까지 통일했습니다. 그러나 셋 모두 그 위에 "무엇을 어디까지 인정하고 거부하려면 어떻게 하는가"를 적은 규정을 따로 두었습니다. 출처: docs/A4 4.1절 ${badge('확인')}</figcaption></div>
+
+  <div class="grid g3" style="margin-top:16px">
+    ${C.cases.map(c => `<div class="card case" id="case-${c.id}">
+      <div class="eyebrow">${esc(c.full)}</div><h3>${esc(c.name)}</h3>
+      <p class="plain-box">${esc(c.plain)}</p>
+      <div class="field"><div class="fk">무엇을 인정하나</div><div class="fv">${esc(c.recognizes)}</div></div>
+      <div class="field"><div class="fk">어떻게 작동하나</div><div class="fv">${esc(c.how)}</div></div>
+      <div class="field"><div class="fk">예외 조항</div><div class="fv">${esc(c.exception)}</div></div>
+      <div class="field"><div class="fk">우리에게 주는 뜻</div><div class="fv"><b>${esc(c.lesson)}</b></div></div>
+      <p class="tiny" style="margin-top:10px">${badge(c.status)} ${rich(c.sources)}</p>
+      ${c.proposal_link ? `<p class="tiny">→ 제언 ${esc(c.proposal_link)}의 근거. <a href="#/proposals">제언 평가판</a></p>` : ''}
+    </div>`).join('')}
+  </div>
+
+  <hr class="sep">
+  <div class="card"><h3>"인정 규정이 따로 있어야 결과가 인정된다"는 명제의 확인 <span class="sub">docs/A4 4.2절</span></h3>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>사례</th><th>공통 기준만 있을 때</th><th>인정 규정이 있을 때</th></tr></thead><tbody>
+      ${C.cases.map(c => `<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.without_rule)}</td><td>${esc(c.with_rule)}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="howto" style="margin-top:12px"><b>공통점</b><p>${esc(C.common.text)} ${badge(C.common.status)}<br>국내 선례와 견주면: ${esc(C.common.domestic_gap)} 그래서 제언 ②는 <b>${C.common.three_elements.map(esc).join(' · ')}</b> 세 요소를 한 문서에 담는 것으로 좁혀 씁니다.</p></div>
+  </div>
+
+  <div class="card" style="margin-top:16px"><h3>국내 제도 설계에 바로 옮길 수 있는 것 <span class="sub">docs/A4 4.3절 · 해석</span></h3>
+    <ol class="bul">${C.transfer.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
+    <p class="tiny" style="margin-top:8px">${badge('해석')} 원문 확인 결과를 국내 제도에 적용한 해석이며, 실제 제도 설계는 해당 기관의 판단입니다.</p></div>`;
+};
+
+/* =========================================================
+   이해관계자: 영향 × 권한 2축 지도 · 표
+   ========================================================= */
+const GROUP_SERIES = { '결정 기관': 'var(--s1)', '시험·인증 기관': 'var(--s2)', '수요자': 'var(--s3)' };
+RENDER.stakeholders = (sec) => {
+  const S = DATA.sth, list = S.stakeholders;
+  const W = 760, H = 420, pad = { l: 70, r: 30, t: 20, b: 50 };
+  const px = v => pad.l + (v - 0.5) / 5 * (W - pad.l - pad.r), py = v => H - pad.b - (v - 0.5) / 5 * (H - pad.t - pad.b);
+  // 같은 좌표 겹침 피하기: 같은 (impact, power)를 가진 점을 조금씩 어긋나게
+  const seen = {};
+  const pts = list.map(s => { const k = s.impact + ',' + s.power; const n = (seen[k] = (seen[k] || 0) + 1); return { ...s, x: px(s.impact) + (n - 1) * 30, y: py(s.power), ly: n === 1 ? -14 : 24, lx: n === 1 ? -20 : 20 }; });
+  const scatter = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="이해관계자를 영향과 권한 두 축에 놓은 지도(추정)">
+    ${[1, 2, 3, 4, 5].map(v => `<line class="grid" x1="${px(v)}" y1="${pad.t}" x2="${px(v)}" y2="${H - pad.b}"/><line class="grid" x1="${pad.l}" y1="${py(v)}" x2="${W - pad.r}" y2="${py(v)}"/>`).join('')}
+    <line class="axis" x1="${pad.l}" y1="${H - pad.b}" x2="${W - pad.r}" y2="${H - pad.b}"/><line class="axis" x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H - pad.b}"/>
+    <text x="${(pad.l + W - pad.r) / 2}" y="${H - 12}" text-anchor="middle" class="lbl">제도가 바뀔 때 받는 영향 → 큼</text>
+    <text x="18" y="${(pad.t + H - pad.b) / 2}" text-anchor="middle" class="lbl" transform="rotate(-90 18 ${(pad.t + H - pad.b) / 2})">제도를 바꿀 권한 → 큼</text>
+    ${[1, 5].map(v => `<text x="${px(v)}" y="${H - pad.b + 16}" text-anchor="middle" style="font-size:11px">${v === 1 ? '작음' : '큼'}</text><text x="${pad.l - 10}" y="${py(v) + 4}" text-anchor="end" style="font-size:11px">${v === 1 ? '작음' : '큼'}</text>`).join('')}
+    ${pts.map(p => `<g data-tip="<b>${esc(p.name)}</b> (${esc(p.group)})<br>역할: ${esc(p.role)}<br>관심(추정): ${esc(p.interest)}">
+      <circle cx="${p.x}" cy="${p.y}" r="16" class="hit"/>
+      <circle cx="${p.x}" cy="${p.y}" r="9" fill="${GROUP_SERIES[p.group]}" stroke="var(--surface)" stroke-width="2"/>
+      <text x="${p.x + (seen[p.impact + ',' + p.power] > 1 ? p.lx : 0)}" y="${p.y + p.ly}" text-anchor="middle" class="lbl" style="font-size:11.5px">${esc(p.name)}</text></g>`).join('')}
+  </svg>`;
+
+  sec.innerHTML = viewHead('5장 · 이해관계자', '이해관계자 지도',
+    '제도를 바꾸려면 누가 결정하고 누가 영향을 받는지 알아야 합니다. 열 곳을 역할(규정을 만드는 곳 · 시험하고 인증하는 곳 · 시험을 받는 쪽)로 나눴습니다.',
+    '각 기관이 "무슨 일을 맡는지"(역할)는 조문과 문서로 확인한 사실입니다. 반면 지도 위의 위치(영향·권한)와 "상호인정에 어떤 관심을 가질지"는 자료 없이 세운 <b>추정</b>이며, 면담이나 공식 입장 자료로 확인하기 전까지는 사실로 읽으면 안 됩니다. 오른쪽 아래(영향 큼·권한 작음)에 몰린 업체들이 상호인정의 수요자이고, 왼쪽 위(권한 큼)의 부처가 규정을 고칠 수 있는 곳입니다.') + `
+  <div class="card">
+    <h3>영향 × 권한 지도 ${badge('추정', '위치는 추정')}</h3>
+    <div class="legend-row" style="margin-bottom:6px">${Object.entries(GROUP_SERIES).map(([g, c]) => `<span><i class="sw" style="background:${c};border-radius:50%"></i>${esc(g)} — ${esc(S._meta.groups[g])}</span>`).join('')}</div>
+    <figure>${scatter}<figcaption>그림 8. 가로는 제도가 바뀔 때 받는 영향, 세로는 제도를 바꿀 권한(각 1~5, 추정). 점에 마우스를 올리면 역할과 관심이 보입니다. 같은 자리의 점은 옆으로 조금 비켰습니다. 출처: briefing 6장 그림 2를 열 곳으로 넓힘</figcaption></figure>
+  </div>
+  <div class="card tbl-wrap" style="margin-top:16px">
+    <table class="tbl"><thead><tr><th>주체</th><th>구분</th><th>제도에서 맡는 역할 ${badge('확인')}</th><th>상호인정에 대한 관심 ${badge('추정')}</th><th>관련 제도</th></tr></thead><tbody>
+      ${list.map(s => `<tr><td><b>${esc(s.name)}</b></td><td><span class="owner" style="--c:${GROUP_SERIES[s.group]}">${esc(s.group)}</span></td><td>${esc(s.role)}</td><td>${esc(s.interest)}</td><td>${s.institutions.map(id => { const i = DATA.inst.institutions.find(x => x.id === id); return i ? `<a href="#/institutions/${id}">${esc(i.short)}</a>` : ''; }).filter(Boolean).join(', ')}</td></tr>`).join('')}
+    </tbody></table></div>
+  <div class="note" style="margin-top:14px">제언 ②(시험 결과 상호인정)는 결정 기관 세 곳(국방부·방위사업청·행정안전부)이 함께 움직이고 분쟁 조정 주체를 정해야 합니다. 어느 기관이 조정을 맡을지는 이 연구에서 정하지 않았습니다.</div>`;
 };
 
 /* =========================================================
